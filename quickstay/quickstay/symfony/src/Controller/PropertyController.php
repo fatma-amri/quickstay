@@ -65,11 +65,18 @@ class PropertyController extends AbstractController
         $reservation->setProperty($property);
         $reservationForm = $this->createForm(ReservationType::class, $reservation);
 
+        // Vérifier si l'utilisateur peut laisser un avis
+        $reviewableReservation = null;
+        if ($this->getUser()) {
+            $reviewableReservation = $reservationRepository->findReviewableReservation($this->getUser(), $property);
+        }
+
         return $this->render('property/show.html.twig', [
             'property' => $property,
             'reviews' => $reviews,
             'averageRating' => $averageRating,
             'reservationForm' => $reservationForm,
+            'reviewableReservation' => $reviewableReservation,
         ]);
     }
 

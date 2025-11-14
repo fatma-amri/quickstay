@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\Review;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -31,11 +32,8 @@ class ReviewType extends AbstractType
                     'placeholder' => 'Résumez votre expérience'
                 ]
             ])
-            ->add('rating', ChoiceType::class, [
-                'label' => 'Note globale',
-                'choices' => $ratingChoices,
-                'expanded' => true,
-                'attr' => ['class' => 'rating-stars']
+            ->add('rating', HiddenType::class, [
+                'attr' => ['class' => 'rating-value']
             ])
             ->add('comment', TextareaType::class, [
                 'label' => 'Votre commentaire',

@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\Property;
 use App\Entity\Reservation;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -98,5 +100,22 @@ class ReservationRepository extends ServiceEntityRepository
             ->orderBy('r.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
+    }
+    public function findReviewableReservation(User $user, Property $property): ?Reservation
+    {
+        return $this->createQueryBuilder('r')
+            ->leftJoin('r.review', 'rv')
+            ->where('r.user = :user')
+            ->andWhere('r.property = :property')
+            ->andWhere('rv.id IS NULL')
+            ->andWhere('(r.status = :completedStatus OR (r.status = :confirmedStatus AND r.endDate < :today))')
+            ->setParameter('user', $user)
+            ->setParameter('property', $property)
+            ->setParameter('completedStatus', Reservation::STATUS_COMPLETED)
+            ->setParameter('confirmedStatus', Reservation::STATUS_CONFIRMED)
+            ->setParameter('today', new \DateTime())
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 }

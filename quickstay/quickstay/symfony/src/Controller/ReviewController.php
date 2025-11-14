@@ -32,7 +32,10 @@ class ReviewController extends AbstractController
             throw $this->createAccessDeniedException('Vous ne pouvez pas laisser un avis pour cette réservation.');
         }
 
-        if (!$reservation->isCompleted()) {
+        $isReviewable = $reservation->isCompleted() ||
+            ($reservation->isConfirmed() && $reservation->getEndDate() < new \DateTime());
+
+        if (!$isReviewable) {
             $this->addFlash('error', 'Vous ne pouvez laisser un avis qu\'après votre séjour.');
             return $this->redirectToRoute('app_reservations');
         }

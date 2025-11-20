@@ -17,7 +17,7 @@
             <div class="card shadow-sm mb-4">
                 <div class="position-relative">
                     {% if property.mainImage %}
-                        <img src="{{ asset('uploads/properties/' ~ property.mainImage) }}" 
+                        <img src="{{ asset(property.mainImage) }}" 
                              class="card-img-top" 
                              alt="{{ property.title }}"
                              style="height: 400px; object-fit: cover;">
@@ -146,10 +146,30 @@
                 </div>
             </div>
             
+            {% if reviews|length == 0 and reviewableReservation %}
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body text-center py-5">
+                        <i class="fa-regular fa-comments fa-3x text-muted mb-3"></i>
+                        <h4>Soyez le premier à donner votre avis !</h4>
+                        <p class="text-muted">Vous avez séjourné ici récemment. Partagez votre expérience avec les autres voyageurs.</p>
+                        <a href="{{ path('app_review_new', {reservationId: reviewableReservation.id}) }}" class="btn btn-primary">
+                            <i class="fa-solid fa-star me-2"></i>Laisser un avis
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+
+
+            
             {% if reviews|length > 0 %}
                 <div class="card shadow-sm">
-                    <div class="card-header bg-white">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
                         <h4 class="mb-0"><i class="fa-solid fa-comments me-2"></i>Avis ({{ reviews|length }})</h4>
+                        {% if reviewableReservation %}
+                            <a href="{{ path('app_review_new', {reservationId: reviewableReservation.id}) }}" class="btn btn-primary btn-sm">
+                                <i class="fa-solid fa-star me-1"></i>Laisser un avis
+                            </a>
+                        {% endif %}
                     </div>
                     <div class="card-body">
                         {% for review in reviews %}

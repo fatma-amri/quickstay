@@ -11,6 +11,25 @@
   <div class="page-body">
     <div class="container-xl">
       <div class="card">
+        <div class="card-header">
+          <ul class="nav nav-tabs card-header-tabs">
+            <li class="nav-item">
+              <a class="nav-link {{ currentFilter == 'pending' ? 'active' : '' }}" href="{{ path('admin_reviews', {filter: 'pending'}) }}">
+                <i class="fa-solid fa-clock me-2"></i>En attente
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {{ currentFilter == 'approved' ? 'active' : '' }}" href="{{ path('admin_reviews', {filter: 'approved'}) }}">
+                <i class="fa-solid fa-check me-2"></i>Approuvés
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {{ currentFilter == 'reported' ? 'active' : '' }}" href="{{ path('admin_reviews', {filter: 'reported'}) }}">
+                <i class="fa-solid fa-flag me-2"></i>Signalés
+              </a>
+            </li>
+          </ul>
+        </div>
         <table class="table table-vcenter">
           <thead>
             <tr>
@@ -27,8 +46,20 @@
               <td>{{ review.property.title|slice(0, 25) }}</td>
               <td>{{ review.author.name }}</td>
               <td>{{ review.rating }}/5</td>
-              <td><span class="badge bg-{{ review.isModerated ? 'success' : 'warning' }}">{{ review.isModerated ? 'Approuvé' : 'En attente' }}</span></td>
-              <td><a href="{{ path('admin_review_show', {id: review.id}) }}" class="btn btn-sm btn-info">Voir</a></td>
+              <td><span class="badge bg-{{ review.isApproved ? 'success' : 'warning' }}">{{ review.isApproved ? 'Approuvé' : 'En attente' }}</span></td>
+              <td>
+                  <div class="btn-list flex-nowrap">
+                      <a href="{{ path('admin_review_show', {id: review.id}) }}" class="btn btn-sm btn-info">Voir</a>
+                      {% if not review.isApproved %}
+                          <form action="{{ path('admin_review_approve', {id: review.id}) }}" method="post" style="display: inline-block;">
+                              <input type="hidden" name="_token" value="{{ csrf_token('approve' ~ review.id) }}">
+                              <button class="btn btn-sm btn-success" title="Approuver">
+                                  <i class="fa-solid fa-check"></i>
+                              </button>
+                          </form>
+                      {% endif %}
+                  </div>
+              </td>
             </tr>
             {% else %}
             <tr><td colspan="5" class="text-center text-muted">Aucun avis</td></tr>

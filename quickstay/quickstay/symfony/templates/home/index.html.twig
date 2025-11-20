@@ -66,7 +66,7 @@
                     <div class="card h-100 shadow-sm">
                         <div class="position-relative">
                             {% if property.mainImage %}
-                                <img src="{{ asset('uploads/properties/' ~ property.mainImage) }}" 
+                                <img src="{{ asset(property.mainImage) }}" 
                                      class="card-img-top" 
                                      alt="{{ property.title }}"
                                      style="height: 200px; object-fit: cover;">
@@ -141,7 +141,7 @@
                     <div class="card h-100 shadow-sm">
                         <div class="position-relative">
                             {% if property.mainImage %}
-                                <img src="{{ asset('uploads/properties/' ~ property.mainImage) }}" 
+                                <img src="{{ asset(property.mainImage) }}" 
                                      class="card-img-top" 
                                      alt="{{ property.title }}"
                                      style="height: 160px; object-fit: cover;">

@@ -119,7 +119,7 @@
                     <h5 class="mb-0"><i class="fa-solid fa-home me-2"></i>Logement</h5>
                 </div>
                 {% if reservation.property.mainImage %}
-                    <img src="{{ asset('uploads/properties/' ~ reservation.property.mainImage) }}" 
+                    <img src="{{ asset(reservation.property.mainImage) }}" 
                          class="card-img-top" 
                          alt="{{ reservation.property.title }}"
                          style="height: 200px; object-fit: cover;">

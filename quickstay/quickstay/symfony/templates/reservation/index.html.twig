@@ -18,7 +18,7 @@
                     <div class="card h-100 shadow-sm">
                         <div class="position-relative">
                             {% if reservation.property.mainImage %}
-                                <img src="{{ asset('uploads/properties/' ~ reservation.property.mainImage) }}" 
+                                <img src="{{ asset(reservation.property.mainImage) }}" 
                                      class="card-img-top" 
                                      alt="{{ reservation.property.title }}"
                                      style="height: 150px; object-fit: cover;">
@@ -64,6 +64,11 @@
                                 <a href="{{ path('app_reservation_show', {id: reservation.id}) }}" class="btn btn-outline-primary btn-sm flex-fill">
                                     <i class="fa-solid fa-eye"></i> Détails
                                 </a>
+                                {% if reservation.isCompleted and not reservation.hasReview %}
+                                    <a href="{{ path('app_review_new', {reservationId: reservation.id}) }}" class="btn btn-primary btn-sm flex-fill">
+                                        <i class="fa-solid fa-star"></i> Laisser un avis
+                                    </a>
+                                {% endif %}
                                 {% if reservation.canBeCancelled %}
                                     <a href="{{ path('app_reservation_cancel', {id: reservation.id}) }}" 
                                        class="btn btn-outline-danger btn-sm"

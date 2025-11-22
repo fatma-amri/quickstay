@@ -1,0 +1,2 @@
+document_root: symfony/public
+passthru: symfony/public/index.php

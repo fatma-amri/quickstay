@@ -1,0 +1,37 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block body %}
+<div class="page-wrapper">
+  <div class="container-xl">
+    <div class="page-header d-print-none">
+      <div class="row align-items-center">
+        <div class="col">
+          <h2 class="page-title">{{ property.title }}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <div class="container-xl">
+      <div class="row row-deck row-cards">
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-body">
+              <h3>Détails</h3>
+              <p><strong>Titre:</strong> {{ property.title }}</p>
+              <p><strong>Ville:</strong> {{ property.city }}</p>
+              <p><strong>Catégorie:</strong> {{ property.category.name ?? 'N/A' }}</p>
+              <p><strong>Description:</strong> {{ property.description }}</p>
+              <p><strong>Prix:</strong> {{ property.price|number_format(2, ',', ' ') }} TND</p>
+              <p><strong>Statut:</strong> {{ property.status }}</p>
+              <a href="{{ path('admin_property_edit', {id: property.id}) }}" class="btn btn-warning">Éditer</a>
+              <a href="{{ path('admin_properties') }}" class="btn btn-secondary">Retour</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

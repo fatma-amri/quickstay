@@ -1,0 +1,106 @@
+<aside class="navbar navbar-vertical navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <h1 class="navbar-brand navbar-brand-autodark">
+            <a href="{{ path('admin_dashboard') }}">
+                <i class="fa-solid fa-bed me-2"></i>
+                QuickStay Admin
+            </a>
+        </h1>
+
+        <div class="collapse navbar-collapse" id="sidebar-menu">
+            <ul class="navbar-nav pt-lg-3">
+                {# Dashboard #}
+                <li class="nav-item {{ app.request.attributes.get('_route') == 'admin_dashboard' ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ path('admin_dashboard') }}">
+                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                            <i class="fa-solid fa-gauge-high"></i>
+                        </span>
+                        <span class="nav-link-title">Tableau de bord</span>
+                    </a>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#navbar-properties" data-bs-toggle="dropdown" role="button">
+                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                            <i class="fa-solid fa-building"></i>
+                        </span>
+                        <span class="nav-link-title">Propriétés</span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{{ path('admin_properties') }}">
+                            <i class="fa-solid fa-list me-2"></i> Liste des propriétés
+                        </a>
+                        <a class="dropdown-item" href="{{ path('admin_property_new') }}">
+                            <i class="fa-solid fa-plus me-2"></i> Ajouter une propriété
+                        </a>
+                        <a class="dropdown-item" href="{{ path('admin_categories') }}">
+                            <i class="fa-solid fa-tags me-2"></i> Catégories
+                        </a>
+                    </div>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#navbar-reservations" data-bs-toggle="dropdown" role="button">
+                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </span>
+                        <span class="nav-link-title">Réservations</span>
+                        {% if pending_count is defined and pending_count > 0 %}
+                        <span class="badge bg-warning text-dark ms-auto">{{ pending_count }}</span>
+                        {% endif %}
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{{ path('admin_reservations') }}">
+                            <i class="fa-solid fa-list me-2"></i> Toutes les réservations
+                        </a>
+                        <a class="dropdown-item" href="{{ path('admin_reservations', {status: 'pending'}) }}">
+                            <i class="fa-solid fa-clock me-2"></i> En attente
+                        </a>
+                        <a class="dropdown-item" href="{{ path('admin_reservations', {status: 'confirmed'}) }}">
+                            <i class="fa-solid fa-check me-2"></i> Confirmées
+                        </a>
+                    </div>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#navbar-users" data-bs-toggle="dropdown" role="button">
+                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                            <i class="fa-solid fa-users"></i>
+                        </span>
+                        <span class="nav-link-title">Utilisateurs</span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{{ path('admin_users') }}">
+                            <i class="fa-solid fa-list me-2"></i> Liste des utilisateurs
+                        </a>
+                        <a class="dropdown-item" href="{{ path('admin_user_new') }}">
+                            <i class="fa-solid fa-user-plus me-2"></i> Ajouter un utilisateur
+                        </a>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('admin_reviews') }}">
+                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                            <i class="fa-solid fa-star"></i>
+                        </span>
+                        <span class="nav-link-title">Avis</span>
+                    </a>
+                </li>
+
+                <li class="nav-item mt-auto">
+                    <a class="nav-link" href="{{ path('app_home') }}" target="_blank">
+                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                            <i class="fa-solid fa-external-link-alt"></i>
+                        </span>
+                        <span class="nav-link-title">Voir le site</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</aside>

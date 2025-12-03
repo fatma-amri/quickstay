@@ -1,0 +1,88 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contact - QuickStay{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="mb-4"><i class="fa-solid fa-envelope text-primary me-2"></i>Contactez-nous</h1>
+            
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                            <h4 class="mb-4">Envoyez-nous un message</h4>
+                            
+                            <form>
+                                <div class="mb-3">
+                                    <label class="form-label">Votre nom</label>
+                                    <input type="text" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Votre email</label>
+                                    <input type="email" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Sujet</label>
+                                    <select class="form-select">
+                                        <option>Question générale</option>
+                                        <option>Problème de réservation</option>
+                                        <option>Problème technique</option>
+                                        <option>Partenariat</option>
+                                        <option>Autre</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Message</label>
+                                    <textarea class="form-control" rows="5" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fa-solid fa-paper-plane me-2"></i>Envoyer
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                            <h4 class="mb-4">Informations de contact</h4>
+                            
+                            <div class="mb-4">
+                                <h6><i class="fa-solid fa-location-dot text-primary me-2"></i>Adresse</h6>
+                                <p class="text-muted">Tunis, Tunisie</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h6><i class="fa-solid fa-envelope text-primary me-2"></i>Email</h6>
+                                <p class="text-muted">contact@quickstay.tn</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h6><i class="fa-solid fa-phone text-primary me-2"></i>Téléphone</h6>
+                                <p class="text-muted">+216 XX XXX XXX</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h6><i class="fa-solid fa-clock text-primary me-2"></i>Horaires</h6>
+                                <p class="text-muted">Lun - Ven: 9h - 18h<br>Sam: 9h - 13h</p>
+                            </div>
+                            
+                            <hr>
+                            
+                            <h6>Suivez-nous</h6>
+                            <div class="d-flex gap-3">
+                                <a href="#" class="text-primary fs-4"><i class="fa-brands fa-facebook"></i></a>
+                                <a href="#" class="text-primary fs-4"><i class="fa-brands fa-instagram"></i></a>
+                                <a href="#" class="text-primary fs-4"><i class="fa-brands fa-twitter"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

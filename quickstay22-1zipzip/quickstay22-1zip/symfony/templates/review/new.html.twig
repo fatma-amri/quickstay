@@ -1,0 +1,126 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Laisser un avis - QuickStay{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Accueil</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_reservations') }}">Mes réservations</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_reservation_show', {id: reservation.id}) }}">Réservation #{{ reservation.reference }}</a></li>
+            <li class="breadcrumb-item active">Laisser un avis</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="fa-solid fa-star me-2"></i>Partagez votre expérience
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4 p-3 bg-light rounded">
+                        <h5>{{ property.title }}</h5>
+                        <p class="text-muted mb-0">
+                            <i class="fa-solid fa-location-dot me-1"></i>{{ property.fullAddress }}
+                        </p>
+                    </div>
+
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                    
+                    {{ form_errors(form) }}
+
+                    <div class="mb-4">
+                        {{ form_label(form.rating) }}
+                        <div class="d-flex gap-2 align-items-center mt-2">
+                            <div class="rating-widget">
+                                {% for i in 1..5 %}
+                                    <i class="fa-star star-rating" data-value="{{ i }}" style="font-size: 2rem; cursor: pointer; color: #ddd;"></i>
+                                {% endfor %}
+                            </div>
+                            <span class="ms-3 fs-5">
+                                <span id="rating-label">Pas encore noté</span>
+                            </span>
+                        </div>
+                        <input type="hidden" id="review_rating" name="review[rating]" value="">
+                        {{ form_errors(form.rating) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.comment) }}
+                        {{ form_widget(form.comment, {'attr': {'class': 'form-control', 'rows': '5', 'placeholder': 'Partagez votre expérience...'}}) }}
+                        {{ form_errors(form.comment) }}
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-warning btn-lg flex-grow-1">
+                            <i class="fa-solid fa-check me-2"></i>Publier mon avis
+                        </button>
+                        <a href="{{ path('app_reservation_show', {id: reservation.id}) }}" class="btn btn-secondary btn-lg">
+                            <i class="fa-solid fa-times me-2"></i>Annuler
+                        </a>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const stars = document.querySelectorAll('.star-rating');
+    const ratingInput = document.getElementById('review_rating');
+    const ratingLabel = document.getElementById('rating-label');
+    const labels = ['Horrible', 'Pas bien', 'Correct', 'Bien', 'Excellent'];
+
+    stars.forEach(star => {
+        star.addEventListener('click', function() {
+            const value = this.getAttribute('data-value');
+            ratingInput.value = value;
+            ratingLabel.textContent = labels[value - 1];
+            
+            stars.forEach(s => {
+                s.style.color = '#ddd';
+            });
+            
+            for (let i = 0; i < value; i++) {
+                stars[i].style.color = '#ffc107';
+            }
+        });
+
+        star.addEventListener('mouseover', function() {
+            const value = this.getAttribute('data-value');
+            stars.forEach(s => {
+                s.style.color = '#ddd';
+            });
+            for (let i = 0; i < value; i++) {
+                stars[i].style.color = '#ffc107';
+            }
+        });
+    });
+
+    document.querySelector('.rating-widget').addEventListener('mouseout', function() {
+        const currentValue = ratingInput.value;
+        stars.forEach(s => {
+            s.style.color = '#ddd';
+        });
+        if (currentValue) {
+            for (let i = 0; i < currentValue; i++) {
+                stars[i].style.color = '#ffc107';
+            }
+        }
+    });
+});
+</script>
+
+<style>
+.star-rating {
+    transition: color 0.2s ease;
+}
+</style>
+{% endblock %}

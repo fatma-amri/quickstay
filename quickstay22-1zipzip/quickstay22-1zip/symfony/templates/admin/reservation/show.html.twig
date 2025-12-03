@@ -1,0 +1,101 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block body %}
+<div class="page-header d-print-none mb-4">
+  <div class="row align-items-center">
+    <div class="col">
+      <h2 class="page-title">Réservation #{{ reservation.reference }}</h2>
+    </div>
+    <div class="col-auto">
+      <a href="{{ path('admin_reservations') }}" class="btn btn-secondary">Retour</a>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-8">
+    <div class="card mb-3">
+      <div class="card-header">
+        <h4 class="card-title">Détails de la réservation</h4>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <p><strong>Propriété:</strong><br>{{ reservation.property.title }}</p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Utilisateur:</strong><br>{{ reservation.user.name }} ({{ reservation.user.email }})</p>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <p><strong>Arrivée:</strong><br>{{ reservation.startDate|date('d/m/Y H:i') }}</p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Départ:</strong><br>{{ reservation.endDate|date('d/m/Y H:i') }}</p>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <p><strong>Nombre de nuits:</strong><br>{{ reservation.nights }}</p>
+          </div>
+          <div class="col-md-4">
+            <p><strong>Nombre de personnes:</strong><br>{{ reservation.guests }}</p>
+          </div>
+          <div class="col-md-4">
+            <p><strong>Prix total:</strong><br>{{ reservation.totalPrice|number_format(2, ',', ' ') }} TND</p>
+          </div>
+        </div>
+        {% if reservation.message %}
+        <div class="mb-3">
+          <p><strong>Message du client:</strong></p>
+          <p class="text-muted">{{ reservation.message }}</p>
+        </div>
+        {% endif %}
+        <div class="mb-0">
+          <p><strong>Statut:</strong></p>
+          <span class="badge bg-{{ reservation.status == 'pending' ? 'warning' : (reservation.status == 'confirmed' ? 'success' : 'danger') }} fs-6">
+            {{ reservation.statusLabel }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    {% if reservation.status == 'pending' %}
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">Actions</h4>
+      </div>
+      <div class="card-body d-flex gap-2">
+        <form method="POST" action="{{ path('admin_reservation_confirm', {id: reservation.id}) }}" style="display: inline;">
+          <input type="hidden" name="_token" value="{{ csrf_token('confirm' ~ reservation.id) }}">
+          <button type="submit" class="btn btn-success">
+            <i class="fa-solid fa-check me-2"></i>Confirmer
+          </button>
+        </form>
+        <form method="POST" action="{{ path('admin_reservation_reject', {id: reservation.id}) }}" style="display: inline;">
+          <input type="hidden" name="_token" value="{{ csrf_token('reject' ~ reservation.id) }}">
+          <button type="submit" class="btn btn-danger">
+            <i class="fa-solid fa-times me-2"></i>Rejeter
+          </button>
+        </form>
+      </div>
+    </div>
+    {% elseif reservation.status == 'confirmed' %}
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">Actions</h4>
+      </div>
+      <div class="card-body">
+        <form method="POST" action="{{ path('admin_reservation_cancel', {id: reservation.id}) }}" style="display: inline;">
+          <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ reservation.id) }}">
+          <button type="submit" class="btn btn-warning">
+            <i class="fa-solid fa-ban me-2"></i>Annuler
+          </button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

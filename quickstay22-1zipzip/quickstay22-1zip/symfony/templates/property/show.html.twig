@@ -1,0 +1,270 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ property.title }} - QuickStay{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Accueil</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_properties') }}">Propriétés</a></li>
+            <li class="breadcrumb-item active">{{ property.title }}</li>
+        </ol>
+    </nav>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="position-relative">
+                    {% if property.mainImage %}
+                        <img src="{{ asset('uploads/properties/' ~ property.mainImage) }}" 
+                             class="card-img-top" 
+                             alt="{{ property.title }}"
+                             style="height: 400px; object-fit: cover;">
+                    {% else %}
+                        <div class="bg-secondary d-flex align-items-center justify-content-center" style="height: 400px;">
+                            <i class="fa-solid fa-home fa-5x text-white"></i>
+                        </div>
+                    {% endif %}
+                    
+                    {% if property.isFeatured %}
+                        <span class="badge bg-warning position-absolute top-0 start-0 m-3 fs-6">
+                            <i class="fa-solid fa-star"></i> En vedette
+                        </span>
+                    {% endif %}
+                </div>
+                
+                {% if property.images|length > 0 %}
+                    <div class="card-body">
+                        <div class="row g-2">
+                            {% for image in property.images %}
+                                <div class="col-3">
+                                    <img src="{{ asset('uploads/properties/' ~ image) }}" 
+                                         class="img-fluid rounded" 
+                                         alt="Image supplémentaire"
+                                         style="height: 80px; object-fit: cover; width: 100%;">
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <span class="badge bg-primary mb-2">{{ property.typeLabel }}</span>
+                            {% if property.category %}
+                                <span class="badge bg-secondary mb-2">{{ property.category.name }}</span>
+                            {% endif %}
+                            <h1 class="h3 mb-1">{{ property.title }}</h1>
+                            <p class="text-muted mb-0">
+                                <i class="fa-solid fa-location-dot me-1"></i>{{ property.fullAddress }}
+                            </p>
+                        </div>
+                        <div class="text-end">
+                            <span class="h3 text-primary">{{ property.price|number_format(0, ',', ' ') }} TND</span>
+                            <span class="text-muted d-block">par nuit</span>
+                        </div>
+                    </div>
+                    
+                    {% if averageRating %}
+                        <div class="mb-3">
+                            <span class="text-warning fs-5">
+                                {% for i in 1..5 %}
+                                    {% if i <= averageRating %}
+                                        <i class="fa-solid fa-star"></i>
+                                    {% elseif i - averageRating < 1 %}
+                                        <i class="fa-solid fa-star-half-alt"></i>
+                                    {% else %}
+                                        <i class="fa-regular fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </span>
+                            <span class="ms-2">{{ averageRating|number_format(1, ',') }}/5 ({{ reviews|length }} avis)</span>
+                        </div>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <div class="row text-center mb-4">
+                        <div class="col-3">
+                            <div class="p-3 bg-light rounded">
+                                <i class="fa-solid fa-bed fa-2x text-primary mb-2"></i>
+                                <p class="mb-0"><strong>{{ property.bedrooms }}</strong> Chambres</p>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="p-3 bg-light rounded">
+                                <i class="fa-solid fa-bath fa-2x text-primary mb-2"></i>
+                                <p class="mb-0"><strong>{{ property.bathrooms }}</strong> Salles de bain</p>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="p-3 bg-light rounded">
+                                <i class="fa-solid fa-users fa-2x text-primary mb-2"></i>
+                                <p class="mb-0"><strong>{{ property.capacity }}</strong> Personnes</p>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="p-3 bg-light rounded">
+                                <i class="fa-solid fa-ruler-combined fa-2x text-primary mb-2"></i>
+                                <p class="mb-0"><strong>{{ property.surface ?? '-' }}</strong> m²</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h4><i class="fa-solid fa-info-circle me-2"></i>Description</h4>
+                    <p class="lead">{{ property.description|nl2br }}</p>
+                    
+                    {% if property.amenities|length > 0 %}
+                        <hr>
+                        <h4><i class="fa-solid fa-check-circle me-2"></i>Équipements</h4>
+                        <div class="row">
+                            {% set amenityLabels = {
+                                'wifi': 'WiFi',
+                                'ac': 'Climatisation',
+                                'heating': 'Chauffage',
+                                'kitchen': 'Cuisine équipée',
+                                'washer': 'Lave-linge',
+                                'parking': 'Parking',
+                                'pool': 'Piscine',
+                                'garden': 'Jardin',
+                                'terrace': 'Terrasse',
+                                'tv': 'TV',
+                                'safe': 'Coffre-fort'
+                            } %}
+                            {% for amenity in property.amenities %}
+                                <div class="col-6 col-md-4 mb-2">
+                                    <i class="fa-solid fa-check text-success me-2"></i>
+                                    {{ amenityLabels[amenity] ?? amenity }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if reviews|length > 0 %}
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h4 class="mb-0"><i class="fa-solid fa-comments me-2"></i>Avis ({{ reviews|length }})</h4>
+                    </div>
+                    <div class="card-body">
+                        {% for review in reviews %}
+                            <div class="border-bottom pb-3 mb-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <div>
+                                        <strong>{{ review.author.displayName }}</strong>
+                                        <span class="text-muted ms-2">{{ review.createdAt|date('d/m/Y') }}</span>
+                                    </div>
+                                    <span class="text-warning">
+                                        {% for i in 1..5 %}
+                                            {% if i <= review.rating %}
+                                                <i class="fa-solid fa-star"></i>
+                                            {% else %}
+                                                <i class="fa-regular fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </span>
+                                </div>
+                                <p class="mb-0">{{ review.comment }}</p>
+                                
+                                {% if review.ownerResponse %}
+                                    <div class="bg-light p-3 mt-2 rounded">
+                                        <small class="text-muted">Réponse du propriétaire :</small>
+                                        <p class="mb-0">{{ review.ownerResponse }}</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fa-solid fa-calendar-check me-2"></i>Réserver</h5>
+                </div>
+                <div class="card-body">
+                    {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                        {{ form_start(reservationForm, {'action': path('app_reservation_new', {id: property.id}), 'attr': {'id': 'reservation-form'}}) }}
+                            {{ form_row(reservationForm.startDate) }}
+                            {{ form_row(reservationForm.endDate) }}
+                            {{ form_row(reservationForm.guests) }}
+                            {{ form_row(reservationForm.message) }}
+                            
+                            <div class="bg-light p-3 rounded mb-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Prix par nuit</span>
+                                    <span>{{ property.price|number_format(0, ',', ' ') }} TND</span>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between">
+                                    <strong>Total estimé</strong>
+                                    <strong class="text-primary" id="total-price">-</strong>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-lg w-100">
+                                <i class="fa-solid fa-check me-2"></i>Réserver maintenant
+                            </button>
+                        {{ form_end(reservationForm) }}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fa-solid fa-lock fa-3x text-muted mb-3"></i>
+                            <p>Connectez-vous pour réserver cette propriété</p>
+                            <a href="{{ path('app_login') }}" class="btn btn-primary">
+                                <i class="fa-solid fa-sign-in-alt me-2"></i>Se connecter
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if property.owner %}
+                <div class="card shadow-sm mt-4">
+                    <div class="card-body text-center">
+                        <div class="avatar avatar-lg bg-primary-lt mb-3 mx-auto d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; border-radius: 50%;">
+                            <span class="fs-2">{{ property.owner.name|first|upper }}</span>
+                        </div>
+                        <h5>{{ property.owner.displayName }}</h5>
+                        <p class="text-muted mb-0">Propriétaire</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const pricePerNight = {{ property.price }};
+    const startDateInput = document.getElementById('reservation_startDate');
+    const endDateInput = document.getElementById('reservation_endDate');
+    const totalPriceElement = document.getElementById('total-price');
+    
+    function calculateTotal() {
+        if (startDateInput && endDateInput && startDateInput.value && endDateInput.value) {
+            const start = new Date(startDateInput.value);
+            const end = new Date(endDateInput.value);
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays > 0) {
+                const total = diffDays * pricePerNight;
+                totalPriceElement.textContent = total.toLocaleString('fr-FR') + ' TND (' + diffDays + ' nuits)';
+            }
+        }
+    }
+    
+    if (startDateInput) startDateInput.addEventListener('change', calculateTotal);
+    if (endDateInput) endDateInput.addEventListener('change', calculateTotal);
+});
+</script>
+{% endblock %}

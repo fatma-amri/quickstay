@@ -1,0 +1,42 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block body %}
+<div class="page-wrapper">
+  <div class="container-xl">
+    <div class="page-header d-print-none">
+      <div class="col"><h2 class="page-title">Avis</h2></div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <div class="container-xl">
+      <div class="card">
+        <table class="table table-vcenter">
+          <thead>
+            <tr>
+              <th>Propriété</th>
+              <th>Auteur</th>
+              <th>Note</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for review in reviews %}
+            <tr>
+              <td>{{ review.property.title|slice(0, 25) }}</td>
+              <td>{{ review.author.name }}</td>
+              <td>{{ review.rating }}/5</td>
+              <td><span class="badge bg-{{ review.isModerated ? 'success' : 'warning' }}">{{ review.isModerated ? 'Approuvé' : 'En attente' }}</span></td>
+              <td><a href="{{ path('admin_review_show', {id: review.id}) }}" class="btn btn-sm btn-info">Voir</a></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-center text-muted">Aucun avis</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

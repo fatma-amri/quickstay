@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}À propos - QuickStay{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="mb-4"><i class="fa-solid fa-info-circle text-primary me-2"></i>À propos de QuickStay</h1>
+            
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h3>Notre mission</h3>
+                    <p class="lead">
+                        QuickStay est une plateforme de réservation de logements qui connecte les voyageurs 
+                        avec des propriétaires de logements de qualité en Tunisie.
+                    </p>
+                    <p>
+                        Notre objectif est de rendre la recherche et la réservation de logements aussi simple 
+                        et agréable que possible, tout en garantissant une expérience de qualité pour nos utilisateurs.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="card h-100 text-center shadow-sm">
+                        <div class="card-body">
+                            <i class="fa-solid fa-home fa-3x text-primary mb-3"></i>
+                            <h5>Logements vérifiés</h5>
+                            <p class="text-muted">Tous nos logements sont vérifiés pour garantir votre confort</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 text-center shadow-sm">
+                        <div class="card-body">
+                            <i class="fa-solid fa-shield-alt fa-3x text-primary mb-3"></i>
+                            <h5>Paiement sécurisé</h5>
+                            <p class="text-muted">Vos transactions sont protégées par un système sécurisé</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 text-center shadow-sm">
+                        <div class="card-body">
+                            <i class="fa-solid fa-headset fa-3x text-primary mb-3"></i>
+                            <h5>Support 24/7</h5>
+                            <p class="text-muted">Notre équipe est disponible pour vous aider à tout moment</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <a href="{{ path('app_properties') }}" class="btn btn-primary btn-lg">
+                    <i class="fa-solid fa-search me-2"></i>Explorer les propriétés
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

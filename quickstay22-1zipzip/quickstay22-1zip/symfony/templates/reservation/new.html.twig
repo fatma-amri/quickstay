@@ -1,0 +1,179 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle réservation - QuickStay{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Accueil</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_properties') }}">Propriétés</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_property_show', {id: property.id}) }}">{{ property.title }}</a></li>
+            <li class="breadcrumb-item active">Réserver</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fa-solid fa-calendar-check me-2"></i>Réserver cette propriété
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {{ form_start(reservationForm, {'attr': {'novalidate': 'novalidate', 'class': 'reservation-form'}}) }}
+                    
+                    {{ form_errors(reservationForm) }}
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(reservationForm.startDate) }}
+                                {{ form_widget(reservationForm.startDate, {'attr': {'class': 'form-control', 'id': 'reservation_startDate'}}) }}
+                                {{ form_errors(reservationForm.startDate) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(reservationForm.endDate) }}
+                                {{ form_widget(reservationForm.endDate, {'attr': {'class': 'form-control', 'id': 'reservation_endDate'}}) }}
+                                {{ form_errors(reservationForm.endDate) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(reservationForm.guests) }}
+                        {{ form_widget(reservationForm.guests, {'attr': {'class': 'form-control'}}) }}
+                        <small class="form-text text-muted">Capacité maximum: {{ property.capacity }} personnes</small>
+                        {{ form_errors(reservationForm.guests) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(reservationForm.message) }}
+                        {{ form_widget(reservationForm.message, {'attr': {'class': 'form-control', 'rows': '4'}}) }}
+                        <small class="form-text text-muted">Partagez vos préférences ou questions avec le propriétaire</small>
+                        {{ form_errors(reservationForm.message) }}
+                    </div>
+
+                    <div class="bg-light p-4 rounded mb-4">
+                        <h5 class="mb-3">Résumé du tarif</h5>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Prix par nuit</span>
+                            <span class="fw-bold">{{ property.price|number_format(0, ',', ' ') }} TND</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Nombre de nuits</span>
+                            <span class="fw-bold" id="nights">-</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <h6 class="mb-0">Total estimé</h6>
+                            <h6 class="mb-0 text-primary" id="total-price">-</h6>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg flex-grow-1">
+                            <i class="fa-solid fa-check me-2"></i>Confirmer la réservation
+                        </button>
+                        <a href="{{ path('app_property_show', {id: property.id}) }}" class="btn btn-secondary btn-lg">
+                            <i class="fa-solid fa-times me-2"></i>Annuler
+                        </a>
+                    </div>
+
+                    {{ form_end(reservationForm) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm sticky-top" style="top: 20px;">
+                {% if property.mainImage %}
+                    <img src="{{ asset('uploads/properties/' ~ property.mainImage) }}" 
+                         class="card-img-top" 
+                         alt="{{ property.title }}"
+                         style="height: 200px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h5>{{ property.title }}</h5>
+                    <p class="text-muted mb-3">
+                        <i class="fa-solid fa-location-dot me-1"></i>{{ property.fullAddress }}
+                    </p>
+
+                    <div class="mb-3">
+                        {% if property.averageRating > 0 %}
+                            <div class="mb-2">
+                                {% for i in 1..5 %}
+                                    {% if i <= property.averageRating %}
+                                        <i class="fa-solid fa-star text-warning"></i>
+                                    {% else %}
+                                        <i class="fa-regular fa-star text-warning"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="ms-2">{{ property.averageRating|number_format(1) }}/5 ({{ property.reviews|length }} avis)</span>
+                            </div>
+                        {% else %}
+                            <p class="text-muted small">Pas encore d'avis</p>
+                        {% endif %}
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-2">
+                        <small class="text-muted"><i class="fa-solid fa-bed me-1"></i>{{ property.bedrooms }} chambre(s)</small>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted"><i class="fa-solid fa-bath me-1"></i>{{ property.bathrooms }} salle(s) de bain</small>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted"><i class="fa-solid fa-users me-1"></i>{{ property.capacity }} personnes max</small>
+                    </div>
+
+                    {% if property.amenities %}
+                        <hr>
+                        <h6>Équipements</h6>
+                        <ul class="list-unstyled small">
+                            {% for amenity in property.amenities|slice(0, 5) %}
+                                <li><i class="fa-solid fa-check text-success me-2"></i>{{ amenity }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const startDateInput = document.getElementById('reservation_startDate');
+    const endDateInput = document.getElementById('reservation_endDate');
+    const nightsSpan = document.getElementById('nights');
+    const totalPriceSpan = document.getElementById('total-price');
+    const pricePerNight = {{ property.price }};
+
+    function updatePrice() {
+        if (startDateInput.value && endDateInput.value) {
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+            const diffTime = Math.abs(endDate - startDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays > 0) {
+                const totalPrice = diffDays * pricePerNight;
+                nightsSpan.textContent = diffDays;
+                totalPriceSpan.textContent = new Intl.NumberFormat('fr-FR', {
+                    style: 'currency',
+                    currency: 'TND'
+                }).format(totalPrice);
+            }
+        }
+    }
+
+    startDateInput.addEventListener('change', updatePrice);
+    endDateInput.addEventListener('change', updatePrice);
+});
+</script>
+{% endblock %}

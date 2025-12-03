@@ -1,0 +1,173 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block body %}
+<div class="page-header d-print-none">
+    <div class="row align-items-center">
+        <div class="col">
+            <h2 class="page-title">Modifier: {{ property.title }}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="row row-deck row-cards">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Édition de la propriété</h3>
+            </div>
+            <div class="card-body">
+                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                
+                {{ form_errors(form) }}
+                
+                <div class="mb-3">
+                    {{ form_label(form.title) }}
+                    {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.title) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.description) }}
+                    {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': '5'}}) }}
+                    {{ form_errors(form.description) }}
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form_label(form.price) }}
+                            {{ form_widget(form.price, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.price) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form_label(form.type) }}
+                            {{ form_widget(form.type, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.type) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.category) }}
+                    {{ form_widget(form.category, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.category) }}
+                </div>
+
+                <h4 class="mt-4 mb-3">Localisation</h4>
+
+                <div class="mb-3">
+                    {{ form_label(form.address) }}
+                    {{ form_widget(form.address, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.address) }}
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form_label(form.city) }}
+                            {{ form_widget(form.city, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.city) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form_label(form.postalCode) }}
+                            {{ form_widget(form.postalCode, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.postalCode) }}
+                        </div>
+                    </div>
+                </div>
+
+                <h4 class="mt-4 mb-3">Capacité et Équipements</h4>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            {{ form_label(form.capacity) }}
+                            {{ form_widget(form.capacity, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.capacity) }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            {{ form_label(form.bedrooms) }}
+                            {{ form_widget(form.bedrooms, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.bedrooms) }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            {{ form_label(form.bathrooms) }}
+                            {{ form_widget(form.bathrooms, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.bathrooms) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.surface) }}
+                    {{ form_widget(form.surface, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.surface) }}
+                </div>
+
+                <div class="mb-3">
+                    <label>Équipements</label>
+                    <div class="form-check">
+                        {{ form_widget(form.amenities) }}
+                    </div>
+                    {{ form_errors(form.amenities) }}
+                </div>
+
+                <h4 class="mt-4 mb-3">Images</h4>
+
+                <div class="mb-3">
+                    {{ form_label(form.mainImageFile) }}
+                    {{ form_widget(form.mainImageFile, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.mainImageFile) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.imageFiles) }}
+                    {{ form_widget(form.imageFiles, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.imageFiles) }}
+                </div>
+
+                <h4 class="mt-4 mb-3">Statut</h4>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            {{ form_label(form.status) }}
+                            {{ form_widget(form.status, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.status) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-check mb-3">
+                    {{ form_widget(form.isAvailable, {'attr': {'class': 'form-check-input'}}) }}
+                    {{ form_label(form.isAvailable, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                </div>
+
+                <div class="form-check mb-3">
+                    {{ form_widget(form.isFeatured, {'attr': {'class': 'form-check-input'}}) }}
+                    {{ form_label(form.isFeatured, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                </div>
+
+                <div class="form-footer mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-save me-2"></i>Mettre à jour
+                    </button>
+                    <a href="{{ path('admin_properties') }}" class="btn btn-secondary">
+                        <i class="fa-solid fa-times me-2"></i>Annuler
+                    </a>
+                </div>
+                
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

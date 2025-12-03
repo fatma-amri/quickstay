@@ -1,0 +1,158 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réservation #{{ reservation.reference }} - QuickStay{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Accueil</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_reservations') }}">Mes réservations</a></li>
+            <li class="breadcrumb-item active">#{{ reservation.reference }}</li>
+        </ol>
+    </nav>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">
+                        <i class="fa-solid fa-receipt me-2"></i>Réservation #{{ reservation.reference }}
+                    </h4>
+                    <span class="badge bg-{{ reservation.statusBadgeClass }} fs-6">
+                        {{ reservation.statusLabel }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="text-muted mb-3">Dates du séjour</h5>
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="bg-primary text-white rounded p-2 me-3 text-center" style="min-width: 60px;">
+                                    <div class="small">{{ reservation.startDate|date('M') }}</div>
+                                    <div class="h4 mb-0">{{ reservation.startDate|date('d') }}</div>
+                                </div>
+                                <div>
+                                    <strong>Arrivée</strong><br>
+                                    <span class="text-muted">{{ reservation.startDate|date('l d F Y') }}</span>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <div class="bg-secondary text-white rounded p-2 me-3 text-center" style="min-width: 60px;">
+                                    <div class="small">{{ reservation.endDate|date('M') }}</div>
+                                    <div class="h4 mb-0">{{ reservation.endDate|date('d') }}</div>
+                                </div>
+                                <div>
+                                    <strong>Départ</strong><br>
+                                    <span class="text-muted">{{ reservation.endDate|date('l d F Y') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="text-muted mb-3">Détails</h5>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td class="text-muted">Nombre de nuits</td>
+                                    <td class="text-end"><strong>{{ reservation.nights }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Voyageurs</td>
+                                    <td class="text-end"><strong>{{ reservation.guests }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Date de réservation</td>
+                                    <td class="text-end">{{ reservation.createdAt|date('d/m/Y H:i') }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    {% if reservation.message %}
+                        <div class="bg-light p-3 rounded mb-4">
+                            <h6><i class="fa-solid fa-comment me-2"></i>Message</h6>
+                            <p class="mb-0">{{ reservation.message }}</p>
+                        </div>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <h5 class="text-muted mb-3">Récapitulatif des coûts</h5>
+                    <table class="table">
+                        <tr>
+                            <td>{{ reservation.nights }} nuits x {{ reservation.pricePerNight|number_format(0, ',', ' ') }} TND</td>
+                            <td class="text-end">{{ (reservation.nights * reservation.pricePerNight)|number_format(0, ',', ' ') }} TND</td>
+                        </tr>
+                        {% if reservation.cleaningFee %}
+                        <tr>
+                            <td>Frais de ménage</td>
+                            <td class="text-end">{{ reservation.cleaningFee|number_format(0, ',', ' ') }} TND</td>
+                        </tr>
+                        {% endif %}
+                        {% if reservation.serviceFee %}
+                        <tr>
+                            <td>Frais de service</td>
+                            <td class="text-end">{{ reservation.serviceFee|number_format(0, ',', ' ') }} TND</td>
+                        </tr>
+                        {% endif %}
+                        <tr class="table-primary">
+                            <td><strong>Total</strong></td>
+                            <td class="text-end"><strong class="h5">{{ reservation.totalPrice|number_format(0, ',', ' ') }} TND</strong></td>
+                        </tr>
+                    </table>
+                </div>
+                
+                {% if reservation.canBeCancelled %}
+                    <div class="card-footer bg-white">
+                        <a href="{{ path('app_reservation_cancel', {id: reservation.id}) }}" 
+                           class="btn btn-danger"
+                           onclick="return confirm('Voulez-vous vraiment annuler cette réservation ?')">
+                            <i class="fa-solid fa-times me-2"></i>Annuler la réservation
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fa-solid fa-home me-2"></i>Logement</h5>
+                </div>
+                {% if reservation.property.mainImage %}
+                    <img src="{{ asset('uploads/properties/' ~ reservation.property.mainImage) }}" 
+                         class="card-img-top" 
+                         alt="{{ reservation.property.title }}"
+                         style="height: 200px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h5>{{ reservation.property.title }}</h5>
+                    <p class="text-muted">
+                        <i class="fa-solid fa-location-dot me-1"></i>{{ reservation.property.fullAddress }}
+                    </p>
+                    <div class="d-flex gap-3 mb-3">
+                        <small><i class="fa-solid fa-bed me-1"></i>{{ reservation.property.bedrooms }} ch.</small>
+                        <small><i class="fa-solid fa-bath me-1"></i>{{ reservation.property.bathrooms }} sdb.</small>
+                        <small><i class="fa-solid fa-users me-1"></i>{{ reservation.property.capacity }} pers.</small>
+                    </div>
+                    <a href="{{ path('app_property_show', {id: reservation.property.id}) }}" class="btn btn-outline-primary btn-sm w-100">
+                        Voir la propriété
+                    </a>
+                </div>
+            </div>
+            
+            {% if reservation.isCompleted and not reservation.review %}
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fa-solid fa-star fa-3x text-warning mb-3"></i>
+                        <h5>Partagez votre expérience</h5>
+                        <p class="text-muted">Aidez les autres voyageurs en laissant un avis</p>
+                        <a href="{{ path('app_review_new', {reservationId: reservation.id}) }}" class="btn btn-warning">
+                            <i class="fa-solid fa-pen me-2"></i>Laisser un avis
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

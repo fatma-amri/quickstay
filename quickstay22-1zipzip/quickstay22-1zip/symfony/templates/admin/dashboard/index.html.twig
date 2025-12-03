@@ -1,0 +1,324 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Tableau de bord - Admin QuickStay{% endblock %}
+
+{% block body %}
+<div class="page-header d-print-none mb-4">
+    <div class="container-xl">
+        <div class="page-pretitle">Administration</div>
+        <h2 class="page-title">
+            <i class="fa-solid fa-gauge-high me-2"></i>Tableau de bord
+        </h2>
+    </div>
+</div>
+
+{# Cartes de statistiques #}
+<div class="row row-deck row-cards mb-4">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="subheader">Total Réservations</div>
+                </div>
+                <div class="h1 mb-3">{{ stats.totalReservations }}</div>
+                <div class="d-flex mb-2">
+                    <div>
+                        <span class="badge bg-warning me-1">{{ stats.pendingReservations }}</span> en attente
+                    </div>
+                </div>
+                <div class="progress progress-sm">
+                    <div class="progress-bar bg-primary" style="width: {{ stats.totalReservations > 0 ? (stats.confirmedReservations / stats.totalReservations * 100) : 0 }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="subheader">Revenus totaux</div>
+                </div>
+                <div class="h1 mb-3">{{ stats.totalRevenue|number_format(2, ',', ' ') }} TND</div>
+                <div class="d-flex mb-2">
+                    <div>Ce mois: <strong>{{ stats.monthlyRevenue|number_format(2, ',', ' ') }} TND</strong></div>
+                </div>
+                <div class="progress progress-sm">
+                    <div class="progress-bar bg-success" style="width: 75%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="subheader">Propriétés</div>
+                </div>
+                <div class="h1 mb-3">{{ stats.totalProperties }}</div>
+                <div class="d-flex mb-2">
+                    <div>
+                        <span class="badge bg-success me-1">{{ stats.publishedProperties }}</span> publiées
+                    </div>
+                </div>
+                <div class="progress progress-sm">
+                    <div class="progress-bar bg-info" style="width: {{ stats.totalProperties > 0 ? (stats.publishedProperties / stats.totalProperties * 100) : 0 }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="subheader">Taux d'occupation</div>
+                </div>
+                <div class="h1 mb-3">{{ stats.occupancyRate }}%</div>
+                <div class="d-flex mb-2">
+                    <div>{{ stats.totalUsers }} utilisateurs</div>
+                </div>
+                <div class="progress progress-sm">
+                    <div class="progress-bar bg-cyan" style="width: {{ stats.occupancyRate }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Graphiques #}
+<div class="row row-deck row-cards mb-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fa-solid fa-chart-line me-2"></i>Réservations par mois</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="reservationsChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fa-solid fa-chart-pie me-2"></i>Statuts des réservations</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="statusChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row row-deck row-cards mb-4">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fa-solid fa-chart-bar me-2"></i>Revenus mensuels</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="revenueChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fa-solid fa-trophy me-2"></i>Top propriétés</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-vcenter card-table">
+                        <thead>
+                            <tr>
+                                <th>Propriété</th>
+                                <th>Réservations</th>
+                                <th>Revenus</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for property in topProperties %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex py-1 align-items-center">
+                                        {% if property.mainImage is defined and property.mainImage %}
+                                        <span class="avatar me-2" style="background-image: url({{ asset('uploads/properties/' ~ property.mainImage) }})"></span>
+                                        {% else %}
+                                        <span class="avatar me-2 bg-secondary-lt"><i class="fa-solid fa-home"></i></span>
+                                        {% endif %}
+                                        <div class="flex-fill">
+                                            <div class="font-weight-medium">{{ property.title|default('')|u.truncate(30) }}</div>
+                                            <div class="text-muted">{{ property.city|default('') }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-muted">{{ property.reservationsCount|default(0) }}</td>
+                                <td class="text-muted">{{ property.totalRevenue|default(0)|number_format(0, ',', ' ') }} TND</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">Aucune donnée disponible</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Dernières réservations #}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fa-solid fa-clock me-2"></i>Dernières réservations</h3>
+        <div class="card-actions">
+            <a href="{{ path('admin_reservations') }}" class="btn btn-primary btn-sm">
+                Voir tout
+            </a>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+            <thead>
+                <tr>
+                    <th>Référence</th>
+                    <th>Client</th>
+                    <th>Propriété</th>
+                    <th>Dates</th>
+                    <th>Montant</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reservation in latestReservations %}
+                <tr>
+                    <td><code>{{ reservation.reference }}</code></td>
+                    <td>
+                        <div class="d-flex py-1 align-items-center">
+                            <span class="avatar avatar-sm me-2 bg-primary-lt">
+                                {{ reservation.user.name|first|upper }}
+                            </span>
+                            <div>{{ reservation.user.displayName }}</div>
+                        </div>
+                    </td>
+                    <td>{{ reservation.property.title|u.truncate(25) }}</td>
+                    <td>
+                        {{ reservation.startDate|date('d/m/Y') }} - {{ reservation.endDate|date('d/m/Y') }}
+                        <small class="text-muted d-block">{{ reservation.nights }} nuits</small>
+                    </td>
+                    <td>{{ reservation.totalPrice|number_format(2, ',', ' ') }} TND</td>
+                    <td>
+                        <span class="badge bg-{{ reservation.statusBadgeClass }}">
+                            {{ reservation.statusLabel }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-list flex-nowrap">
+                            <a href="{{ path('admin_reservation_show', {id: reservation.id}) }}" class="btn btn-sm">
+                                <i class="fa-solid fa-eye"></i>
+                            </a>
+                            {% if reservation.isPending %}
+                            <a href="{{ path('admin_reservation_confirm', {id: reservation.id}) }}" class="btn btn-sm btn-success" onclick="return confirm('Confirmer cette réservation ?')">
+                                <i class="fa-solid fa-check"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">
+                        <i class="fa-solid fa-inbox fa-2x mb-2"></i>
+                        <p class="mb-0">Aucune réservation pour le moment</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Données des graphiques depuis Twig
+    const reservationsByMonth = {{ chartData.reservationsByMonth|json_encode|raw }};
+    const revenueByMonth = {{ chartData.revenueByMonth|json_encode|raw }};
+    const reservationsByStatus = {{ chartData.reservationsByStatus|json_encode|raw }};
+
+    // Graphique des réservations par mois
+    new Chart(document.getElementById('reservationsChart'), {
+        type: 'line',
+        data: {
+            labels: reservationsByMonth.map(d => d.month),
+            datasets: [{
+                label: 'Réservations',
+                data: reservationsByMonth.map(d => d.count),
+                borderColor: '#206bc4',
+                backgroundColor: 'rgba(32, 107, 196, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // Graphique des statuts
+    new Chart(document.getElementById('statusChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['En attente', 'Confirmées', 'Annulées', 'Terminées'],
+            datasets: [{
+                data: [
+                    reservationsByStatus.pending || 0,
+                    reservationsByStatus.confirmed || 0,
+                    reservationsByStatus.cancelled || 0,
+                    reservationsByStatus.completed || 0
+                ],
+                backgroundColor: ['#f59f00', '#2fb344', '#6c757d', '#0ca678']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    // Graphique des revenus
+    new Chart(document.getElementById('revenueChart'), {
+        type: 'bar',
+        data: {
+            labels: revenueByMonth.map(d => d.month),
+            datasets: [{
+                label: 'Revenus (TND)',
+                data: revenueByMonth.map(d => d.revenue),
+                backgroundColor: '#2fb344'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

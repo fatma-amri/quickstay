@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier mon profil - QuickStay{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Modifier mon profil</h3>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                    
+                    {{ form_errors(form) }}
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.name) }}
+                        {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.name) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.email) }}
+                        {{ form_widget(form.email, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.email) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.phone) }}
+                        {{ form_widget(form.phone, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.phone) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.address) }}
+                        {{ form_widget(form.address, {'attr': {'class': 'form-control', 'rows': '3'}}) }}
+                        {{ form_errors(form.address) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.plainPassword) }}
+                        {{ form_widget(form.plainPassword, {'attr': {'class': 'form-control', 'type': 'password'}}) }}
+                        <small class="form-text text-muted">Laissez vide pour ne pas changer le mot de passe</small>
+                        {{ form_errors(form.plainPassword) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.avatarFile) }}
+                        {{ form_widget(form.avatarFile, {'attr': {'class': 'form-control'}}) }}
+                        <small class="form-text text-muted">Format: JPG, PNG. Max 5MB</small>
+                        {{ form_errors(form.avatarFile) }}
+                    </div>
+
+                    <div class="form-footer mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-save me-2"></i>Enregistrer les modifications
+                        </button>
+                        <a href="{{ path('app_profile') }}" class="btn btn-secondary">
+                            <i class="fa-solid fa-times me-2"></i>Annuler
+                        </a>
+                    </div>
+                    
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

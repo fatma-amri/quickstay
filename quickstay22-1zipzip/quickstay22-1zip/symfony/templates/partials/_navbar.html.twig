@@ -1,0 +1,75 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="{{ path('app_home') }}">
+            <i class="fa-solid fa-bed text-primary me-2 fs-4"></i>
+            <span class="fw-bold">QuickStay</span>
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link {{ app.request.attributes.get('_route') == 'app_home' ? 'active' : '' }}" href="{{ path('app_home') }}">
+                        <i class="fa-solid fa-home me-1"></i> Accueil
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ 'properties' in app.request.attributes.get('_route') ? 'active' : '' }}" href="{{ path('app_properties') }}">
+                        <i class="fa-solid fa-building me-1"></i> Propriétés
+                    </a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav">
+                {% if app.user %}
+                    {% if is_granted('ROLE_ADMIN') %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('admin_dashboard') }}">
+                            <i class="fa-solid fa-gauge-high me-1"></i> Administration
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.attributes.get('_route') == 'app_reservations' ? 'active' : '' }}" href="{{ path('app_reservations') }}">
+                            <i class="fa-solid fa-bookmark me-1"></i> Mes réservations
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fa-solid fa-user-circle me-1"></i> {{ app.user.displayName }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="{{ path('app_profile') }}">
+                                    <i class="fa-solid fa-user me-2"></i> Mon profil
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="{{ path('app_logout') }}">
+                                    <i class="fa-solid fa-sign-out-alt me-2"></i> Déconnexion
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.attributes.get('_route') == 'app_login' ? 'active' : '' }}" href="{{ path('app_login') }}">
+                            <i class="fa-solid fa-sign-in-alt me-1"></i> Connexion
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary ms-2" href="{{ path('app_register') }}">
+                            <i class="fa-solid fa-user-plus me-1"></i> S'inscrire
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

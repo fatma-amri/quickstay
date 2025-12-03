@@ -1,0 +1,64 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block body %}
+<div class="page-wrapper">
+  <div class="container-xl">
+    <div class="page-header d-print-none">
+      <div class="row align-items-center">
+        <div class="col">
+          <h2 class="page-title">Propriétés</h2>
+        </div>
+        <div class="col-auto">
+          <a href="{{ path('admin_property_new') }}" class="btn btn-primary">Ajouter une propriété</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <div class="container-xl">
+      <div class="row row-deck row-cards">
+        <div class="col-12">
+          <div class="card">
+            <table class="table table-vcenter">
+              <thead>
+                <tr>
+                  <th>Titre</th>
+                  <th>Ville</th>
+                  <th>Catégorie</th>
+                  <th>Statut</th>
+                  <th>Prix</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for property in properties %}
+                <tr>
+                  <td>{{ property.title|slice(0, 30) }}</td>
+                  <td>{{ property.city }}</td>
+                  <td>{{ property.category.name ?? 'N/A' }}</td>
+                  <td>
+                    <span class="badge bg-{{ property.status == 'published' ? 'success' : 'secondary' }}">
+                      {{ property.status }}
+                    </span>
+                  </td>
+                  <td>{{ property.price|number_format(2, ',', ' ') }} TND</td>
+                  <td>
+                    <a href="{{ path('admin_property_show', {id: property.id}) }}" class="btn btn-sm btn-info">Voir</a>
+                    <a href="{{ path('admin_property_edit', {id: property.id}) }}" class="btn btn-sm btn-warning">Éditer</a>
+                  </td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="6" class="text-center text-muted">Aucune propriété trouvée</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

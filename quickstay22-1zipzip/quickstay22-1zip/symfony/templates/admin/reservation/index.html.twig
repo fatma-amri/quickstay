@@ -1,0 +1,42 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block body %}
+<div class="page-wrapper">
+  <div class="container-xl">
+    <div class="page-header d-print-none">
+      <div class="col"><h2 class="page-title">Réservations</h2></div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <div class="container-xl">
+      <div class="card">
+        <table class="table table-vcenter">
+          <thead>
+            <tr>
+              <th>Propriété</th>
+              <th>Utilisateur</th>
+              <th>Dates</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for reservation in reservations %}
+            <tr>
+              <td>{{ reservation.property.title|slice(0, 25) }}</td>
+              <td>{{ reservation.user.name }}</td>
+              <td>{{ reservation.startDate|date('d/m/Y') }} - {{ reservation.endDate|date('d/m/Y') }}</td>
+              <td><span class="badge bg-{{ reservation.status == 'pending' ? 'warning' : (reservation.status == 'confirmed' ? 'success' : 'danger') }}">{{ reservation.statusLabel }}</span></td>
+              <td><a href="{{ path('admin_reservation_show', {id: reservation.id}) }}" class="btn btn-sm btn-info">Voir</a></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-center text-muted">Aucune réservation</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

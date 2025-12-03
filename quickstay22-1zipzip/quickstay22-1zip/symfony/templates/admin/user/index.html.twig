@@ -1,0 +1,48 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block body %}
+<div class="page-wrapper">
+  <div class="container-xl">
+    <div class="page-header d-print-none">
+      <div class="row align-items-center">
+        <div class="col"><h2 class="page-title">Utilisateurs</h2></div>
+        <div class="col-auto">
+          <a href="{{ path('admin_user_new') }}" class="btn btn-primary">Ajouter</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <div class="container-xl">
+      <div class="card">
+        <table class="table table-vcenter">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Email</th>
+              <th>Rôle</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+            <tr>
+              <td>{{ user.name }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.roles[0]|replace({'ROLE_': ''}) }}</td>
+              <td>
+                <a href="{{ path('admin_user_show', {id: user.id}) }}" class="btn btn-sm btn-info">Voir</a>
+                <a href="{{ path('admin_user_edit', {id: user.id}) }}" class="btn btn-sm btn-warning">Éditer</a>
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="text-center text-muted">Aucun utilisateur</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

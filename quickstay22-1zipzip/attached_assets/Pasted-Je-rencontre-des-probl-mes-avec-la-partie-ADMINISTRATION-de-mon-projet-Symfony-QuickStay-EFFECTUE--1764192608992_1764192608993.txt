@@ -1,0 +1,480 @@
+Je rencontre des problèmes avec la partie ADMINISTRATION de mon projet Symfony QuickStay.
+
+EFFECTUE UN DIAGNOSTIC COMPLET ET CORRIGE TOUS LES PROBLÈMES DE L'ADMIN :
+
+═══════════════════════════════════════════════════════════════════
+🔐 ÉTAPE 1 : SÉCURITÉ ET ACCÈS ADMIN
+═══════════════════════════════════════════════════════════════════
+
+A. CONFIGURATION SECURITY.YAML
+
+Vérifie et corrige mon fichier config/packages/security.yaml :
+
+✓ Encoder de mot de passe configuré :
+  password_hashers:
+      App\Entity\User:
+          algorithm: auto
+
+✓ Provider configuré :
+  providers:
+      app_user_provider:
+          entity:
+              class: App\Entity\User
+              property: email
+
+✓ Firewall admin correctement défini :
+  firewalls:
+      admin:
+          pattern: ^/admin
+          lazy: true
+          provider: app_user_provider
+          form_login:
+              login_path: app_login
+              check_path: app_login
+              default_target_path: admin_dashboard
+          logout:
+              path: app_logout
+              target: app_login
+
+✓ Access Control pour protéger /admin :
+  access_control:
+      - { path: ^/admin, roles: ROLE_ADMIN }
+      - { path: ^/login, roles: PUBLIC_ACCESS }
+
+✓ Hiérarchie des rôles :
+  role_hierarchy:
+      ROLE_ADMIN: ROLE_USER
+      ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+
+B. ENTITÉ USER
+
+Vérifie que mon entité User :
+✓ Implémente UserInterface et PasswordAuthenticatedUserInterface
+✓ A une propriété $roles de type array (json)
+✓ A les méthodes getRoles(), eraseCredentials(), getUserIdentifier()
+✓ La méthode getRoles() retourne toujours au moins ['ROLE_USER']
+
+GÉNÈRE LE CODE COMPLET CORRIGÉ pour User.php
+
+C. CRÉATION D'UN COMPTE ADMIN
+
+Crée-moi une commande Symfony ou une fixture pour créer un admin :
+- Email : admin@quickstay.com
+- Password : Admin123!
+- Roles : ["ROLE_ADMIN"]
+
+Code pour : src/Command/CreateAdminCommand.php
+OU src/DataFixtures/UserFixtures.php
+
+D. TEST D'ACCÈS
+
+Vérifie que :
+□ /admin redirige vers /login si non connecté
+□ /admin accessible si connecté en tant qu'admin
+□ /admin refuse l'accès si connecté en tant que user simple
+
+═══════════════════════════════════════════════════════════════════
+🎨 ÉTAPE 2 : STRUCTURE ET NAVIGATION ADMIN
+═══════════════════════════════════════════════════════════════════
+
+A. LAYOUT ADMIN
+
+Crée/Corrige templates/admin/base_admin.html.twig avec :
+
+✓ Extension de base.html.twig
+✓ Sidebar avec menu de navigation :
+  - Dashboard (statistiques)
+  - Gestion des Propriétés (liste, ajouter)
+  - Gestion des Réservations
+  - Gestion des Utilisateurs
+  - Gestion des Catégories
+  - Gestion des Avis
+✓ Topbar avec :
+  - Nom de l'admin connecté ({{ app.user.email }})
+  - Bouton de déconnexion
+✓ Zone de contenu principal avec block content
+✓ Flash messages affichés
+✓ Bootstrap 5 ou AdminLTE intégré
+
+GÉNÈRE LE CODE COMPLET de base_admin.html.twig
+
+B. ROUTES ADMIN
+
+Vérifie que toutes les routes admin commencent par /admin :
+
+Routes nécessaires :
+- /admin → Dashboard
+- /admin/properties → Liste propriétés
+- /admin/properties/new → Nouvelle propriété
+- /admin/properties/{id}/edit → Modifier propriété
+- /admin/properties/{id}/delete → Supprimer propriété
+- /admin/reservations → Liste réservations
+- /admin/reservations/{id} → Détail réservation
+- /admin/users → Liste utilisateurs
+- /admin/users/{id}/edit → Modifier utilisateur
+
+GÉNÈRE la commande pour vérifier : php bin/console debug:router | grep admin
+
+═══════════════════════════════════════════════════════════════════
+📊 ÉTAPE 3 : DASHBOARD ADMIN
+═══════════════════════════════════════════════════════════════════
+
+Crée/Corrige src/Controller/Admin/DashboardController.php
+
+FONCTIONNALITÉS REQUISES :
+
+A. STATISTIQUES À AFFICHER
+
+✓ Total des propriétés
+✓ Total des réservations (avec répartition par statut)
+✓ Total des utilisateurs (clients)
+✓ Revenus générés (somme des paiements confirmés)
+✓ Taux d'occupation moyen
+✓ Réservations du mois en cours
+✓ Top 5 propriétés les plus réservées
+
+B. GRAPHIQUES
+
+✓ Évolution des réservations (par mois - 12 derniers mois)
+✓ Répartition par statut (pie chart)
+✓ Revenus mensuels (bar chart)
+
+Utilise Chart.js pour les graphiques
+
+C. CODE À GÉNÉRER
+
+GÉNÈRE LE CODE COMPLET avec :
+- DashboardController.php
+- admin/dashboard.html.twig
+- Requêtes DQL/QueryBuilder pour les stats
+- Intégration Chart.js
+
+═══════════════════════════════════════════════════════════════════
+🏠 ÉTAPE 4 : CRUD PROPRIÉTÉS (PROPERTIES)
+═══════════════════════════════════════════════════════════════════
+
+A. CONTROLLER
+
+Crée/Corrige src/Controller/Admin/PropertyController.php
+
+ACTIONS NÉCESSAIRES :
+
+✓ index() : Liste toutes les propriétés avec pagination
+  - Tableaux avec : ID, Nom, Prix, Ville, Statut, Actions
+  - Boutons : Voir, Modifier, Supprimer
+  - Bouton "Ajouter une propriété"
+
+✓ new() : Créer une nouvelle propriété
+  - Formulaire complet
+  - Upload d'images OBLIGATOIRE (1 ou plusieurs)
+  - Validation des données
+  - Flash message de succès
+  - Redirection vers liste
+
+✓ edit() : Modifier une propriété existante
+  - Formulaire pré-rempli
+  - Possibilité de changer les images
+  - Validation
+  - Flash message
+  - Redirection vers liste
+
+✓ delete() : Supprimer une propriété
+  - Confirmation JavaScript
+  - Vérification CSRF
+  - Suppression cascade des images
+  - Flash message
+  - Redirection vers liste
+
+✓ show() : Voir détails d'une propriété
+  - Toutes les infos
+  - Liste des réservations associées
+  - Statistiques de cette propriété
+
+B. FORMULAIRE
+
+Crée/Corrige src/Form/PropertyType.php
+
+CHAMPS OBLIGATOIRES :
+- name (TextType)
+- description (TextareaType)
+- price (MoneyType)
+- address (TextType)
+- city (TextType)
+- country (TextType)
+- capacity (IntegerType)
+- bedrooms (IntegerType)
+- bathrooms (IntegerType)
+- category (EntityType → Category)
+- images (FileType, multiple => true) ← OBLIGATOIRE
+- available (CheckboxType)
+
+VALIDATION :
+- @Assert\NotBlank sur champs obligatoires
+- @Assert\Positive sur prix
+- @Assert\Image sur images
+
+C. UPLOAD D'IMAGES
+
+Configure VichUploaderBundle ou système custom :
+
+config/packages/vich_uploader.yaml :
+```yaml
+vich_uploader:
+    db_driver: orm
+    mappings:
+        property_images:
+            uri_prefix: /uploads/properties
+            upload_destination: '%kernel.project_dir%/public/uploads/properties'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+```
+
+Entité PropertyImage :
+- property (ManyToOne → Property)
+- imageName (string)
+- imageFile (VichUploadableField)
+
+D. TEMPLATES
+
+GÉNÈRE :
+- templates/admin/property/index.html.twig (liste)
+- templates/admin/property/new.html.twig (création)
+- templates/admin/property/edit.html.twig (édition)
+- templates/admin/property/show.html.twig (détail)
+
+Avec Bootstrap 5, tableaux responsive, formulaires stylisés
+
+═══════════════════════════════════════════════════════════════════
+📅 ÉTAPE 5 : GESTION DES RÉSERVATIONS
+═══════════════════════════════════════════════════════════════════
+
+A. CONTROLLER
+
+Crée/Corrige src/Controller/Admin/ReservationController.php
+
+ACTIONS :
+
+✓ index() : Liste toutes les réservations
+  - Filtres : statut, date, propriété
+  - Tableau : ID, Client, Propriété, Dates, Statut, Prix, Actions
+  - Pagination
+
+✓ show() : Détail d'une réservation
+  - Infos complètes
+  - Infos client
+  - Infos propriété
+  - Paiement associé
+  - Boutons d'action selon statut
+
+✓ updateStatus() : Changer le statut
+  - pending → confirmed
+  - pending → cancelled
+  - confirmed → cancelled
+  - Validation CSRF
+  - Flash message
+
+✓ delete() : Supprimer (avec confirmation)
+
+B. STATUTS POSSIBLES
+
+Définir comme constantes dans Reservation.php :
+- STATUS_PENDING = 'pending'
+- STATUS_CONFIRMED = 'confirmed'
+- STATUS_CANCELLED = 'cancelled'
+- STATUS_COMPLETED = 'completed'
+
+C. TEMPLATES
+
+GÉNÈRE :
+- templates/admin/reservation/index.html.twig
+- templates/admin/reservation/show.html.twig
+
+Avec badges Bootstrap pour les statuts (colorés)
+
+═══════════════════════════════════════════════════════════════════
+👥 ÉTAPE 6 : GESTION DES UTILISATEURS
+═══════════════════════════════════════════════════════════════════
+
+A. CONTROLLER
+
+Crée/Corrige src/Controller/Admin/UserController.php
+
+ACTIONS :
+
+✓ index() : Liste tous les utilisateurs
+  - Tableau : ID, Email, Nom, Rôle, Inscrit le, Actions
+  - Filtres : rôle
+  - Pagination
+
+✓ show() : Profil utilisateur
+  - Infos complètes
+  - Réservations de l'utilisateur
+  - Statistiques
+
+✓ edit() : Modifier un utilisateur
+  - Changer email, nom
+  - Changer rôle (ROLE_USER / ROLE_ADMIN)
+  - NE PAS permettre de changer le mot de passe ici
+
+✓ delete() : Supprimer (avec confirmation)
+  - Vérifier qu'il ne supprime pas son propre compte
+
+B. FORMULAIRE
+
+Crée src/Form/Admin/UserEditType.php
+- email
+- firstName
+- lastName
+- roles (ChoiceType avec ['ROLE_USER', 'ROLE_ADMIN'])
+
+C. TEMPLATES
+
+GÉNÈRE :
+- templates/admin/user/index.html.twig
+- templates/admin/user/show.html.twig
+- templates/admin/user/edit.html.twig
+
+═══════════════════════════════════════════════════════════════════
+⭐ ÉTAPE 7 : GESTION DES AVIS (REVIEWS)
+═══════════════════════════════════════════════════════════════════
+
+A. CONTROLLER
+
+Crée src/Controller/Admin/ReviewController.php
+
+ACTIONS :
+
+✓ index() : Liste tous les avis
+  - Tableau : Propriété, Client, Note, Commentaire, Date, Actions
+  - Filtres : note, propriété
+  - Modération : approuver/rejeter
+
+✓ delete() : Supprimer un avis
+
+B. MODÉRATION
+
+Ajouter champ "approved" (boolean) dans Review
+- false par défaut
+- Admin peut approuver/rejeter
+
+C. TEMPLATES
+
+GÉNÈRE :
+- templates/admin/review/index.html.twig
+
+═══════════════════════════════════════════════════════════════════
+🎨 ÉTAPE 8 : DESIGN ET UX ADMIN
+═══════════════════════════════════════════════════════════════════
+
+A. FRAMEWORK UI
+
+Recommandation : AdminLTE 3 (Bootstrap 4/5 based)
+
+Installation :
+npm install admin-lte --save
+
+Configuration dans webpack.encore.js
+
+OU utiliser Tabler.io (moderne et léger)
+
+B. ÉLÉMENTS D'INTERFACE
+
+✓ Cards pour statistiques (avec icônes)
+✓ DataTables pour tableaux interactifs
+✓ SweetAlert2 pour confirmations élégantes
+✓ Toastr pour notifications
+✓ Select2 pour sélecteurs améliorés
+✓ DateRangePicker pour filtres de dates
+
+C. RESPONSIVE
+
+Vérifie que tout fonctionne sur mobile/tablette
+
+═══════════════════════════════════════════════════════════════════
+🐛 ÉTAPE 9 : CORRECTION DES ERREURS COMMUNES
+═══════════════════════════════════════════════════════════════════
+
+A. ERREURS D'ACCÈS
+
+Si erreur 403 :
+✓ Vérifier les rôles dans security.yaml
+✓ Vérifier que l'utilisateur a ROLE_ADMIN
+✓ Vérifier access_control
+
+Si redirection infinie :
+✓ Vérifier firewall pattern
+✓ Vérifier login_path vs check_path
+
+B. ERREURS DE FORMULAIRE
+
+Si formulaire ne se soumet pas :
+✓ Vérifier CSRF activé
+✓ Vérifier {{ form_start(form) }}
+✓ Vérifier validation des entités
+
+Si upload d'image ne marche pas :
+✓ Vérifier config vich_uploader
+✓ Vérifier droits du dossier /public/uploads
+✓ Vérifier @Vich\Uploadable sur entité
+
+C. ERREURS DE BASE DE DONNÉES
+
+Si erreurs de relation :
+✓ Vérifier cascade: ["persist", "remove"]
+✓ Vérifier orphanRemoval: true si nécessaire
+✓ Refaire migration
+
+═══════════════════════════════════════════════════════════════════
+✅ ÉTAPE 10 : TESTS ET VALIDATION
+═══════════════════════════════════════════════════════════════════
+
+SCÉNARIOS À TESTER :
+
+A. AUTHENTIFICATION
+□ Se connecter en tant qu'admin
+□ Accéder au dashboard
+□ Se déconnecter
+
+B. PROPRIÉTÉS
+□ Voir la liste des propriétés
+□ Créer une nouvelle propriété (avec images)
+□ Modifier une propriété existante
+□ Supprimer une propriété
+□ Vérifier que les images sont bien uploadées
+
+C. RÉSERVATIONS
+□ Voir la liste des réservations
+□ Voir détail d'une réservation
+□ Changer le statut d'une réservation
+□ Filtrer par statut
+
+D. UTILISATEURS
+□ Voir la liste des utilisateurs
+□ Voir profil d'un utilisateur
+□ Modifier un utilisateur
+□ Changer son rôle
+
+E. DASHBOARD
+□ Les statistiques s'affichent correctement
+□ Les graphiques fonctionnent
+
+═══════════════════════════════════════════════════════════════════
+
+📝 GÉNÉRATION ATTENDUE
+
+Pour chaque étape ci-dessus, GÉNÈRE :
+
+1. Le code complet des fichiers concernés
+2. Les corrections à apporter si fichiers existants
+3. Les commandes à exécuter
+4. Les tests à effectuer
+5. Un message de validation "✅ ÉTAPE X COMPLÈTE"
+
+COMMENCE MAINTENANT PAR L'ÉTAPE 1 et avance progressivement.
+
+Génère d'abord :
+- security.yaml complet et corrigé
+- User.php complet et corrigé
+- CreateAdminCommand.php
+- Instructions pour créer le compte admin
+
+Puis attends ma confirmation avant de passer à l'étape suivante.

@@ -1,0 +1,27 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block body %}
+<div class="page-wrapper">
+  <div class="container-xl">
+    <div class="page-header d-print-none">
+      <div class="col"><h2 class="page-title">{{ user.name }}</h2></div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <div class="container-xl">
+      <div class="col-md-8">
+        <div class="card">
+          <div class="card-body">
+            <p><strong>Nom:</strong> {{ user.name }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Rôle:</strong> {{ user.roles[0]|replace({'ROLE_': ''}) }}</p>
+            <a href="{{ path('admin_user_edit', {id: user.id}) }}" class="btn btn-warning">Éditer</a>
+            <a href="{{ path('admin_users') }}" class="btn btn-secondary">Retour</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,157 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Propriétés{% if city is defined %} à {{ city }}{% endif %} - QuickStay{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fa-solid fa-filter me-2"></i>Filtres</h5>
+                </div>
+                <div class="card-body">
+                    {{ form_start(searchForm, {'attr': {'class': 'search-form'}}) }}
+                        <div class="mb-3">
+                            {{ form_label(searchForm.city) }}
+                            {{ form_widget(searchForm.city) }}
+                        </div>
+                        
+                        {% if searchForm.type is defined %}
+                        <div class="mb-3">
+                            {{ form_label(searchForm.type) }}
+                            {{ form_widget(searchForm.type) }}
+                        </div>
+                        {% endif %}
+                        
+                        {% if searchForm.minPrice is defined %}
+                        <div class="mb-3">
+                            {{ form_label(searchForm.minPrice) }}
+                            {{ form_widget(searchForm.minPrice) }}
+                        </div>
+                        {% endif %}
+                        
+                        {% if searchForm.maxPrice is defined %}
+                        <div class="mb-3">
+                            {{ form_label(searchForm.maxPrice) }}
+                            {{ form_widget(searchForm.maxPrice) }}
+                        </div>
+                        {% endif %}
+                        
+                        {% if searchForm.bedrooms is defined %}
+                        <div class="mb-3">
+                            {{ form_label(searchForm.bedrooms) }}
+                            {{ form_widget(searchForm.bedrooms) }}
+                        </div>
+                        {% endif %}
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fa-solid fa-search me-2"></i>Rechercher
+                        </button>
+                    {{ form_end(searchForm) }}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">
+                    <i class="fa-solid fa-home me-2 text-primary"></i>
+                    {% if city is defined %}
+                        Propriétés à {{ city }}
+                    {% else %}
+                        Toutes les propriétés
+                    {% endif %}
+                </h2>
+                <span class="badge bg-primary fs-6">{{ properties.getTotalItemCount }} résultats</span>
+            </div>
+            
+            {% if properties|length > 0 %}
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    {% for property in properties %}
+                        <div class="col">
+                            <div class="card h-100 shadow-sm property-card">
+                                <div class="position-relative">
+                                    {% if property.mainImage %}
+                                        <img src="{{ asset('uploads/properties/' ~ property.mainImage) }}" 
+                                             class="card-img-top" 
+                                             alt="{{ property.title }}"
+                                             style="height: 200px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                                            <i class="fa-solid fa-home fa-4x text-white"></i>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    {% if property.isFeatured %}
+                                        <span class="badge bg-warning position-absolute top-0 start-0 m-2">
+                                            <i class="fa-solid fa-star"></i> En vedette
+                                        </span>
+                                    {% endif %}
+                                    
+                                    <span class="badge bg-primary position-absolute top-0 end-0 m-2">
+                                        {{ property.typeLabel }}
+                                    </span>
+                                </div>
+                                
+                                <div class="card-body">
+                                    <h5 class="card-title text-truncate">{{ property.title }}</h5>
+                                    <p class="card-text text-muted mb-2">
+                                        <i class="fa-solid fa-location-dot me-1"></i>{{ property.city }}
+                                    </p>
+                                    
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <small class="text-muted">
+                                            <i class="fa-solid fa-bed me-1"></i>{{ property.bedrooms }} ch.
+                                        </small>
+                                        <small class="text-muted">
+                                            <i class="fa-solid fa-bath me-1"></i>{{ property.bathrooms }} sdb.
+                                        </small>
+                                        <small class="text-muted">
+                                            <i class="fa-solid fa-users me-1"></i>{{ property.capacity }} pers.
+                                        </small>
+                                    </div>
+                                    
+                                    {% if property.averageRating %}
+                                        <div class="mb-2">
+                                            <span class="text-warning">
+                                                {% for i in 1..5 %}
+                                                    {% if i <= property.averageRating %}
+                                                        <i class="fa-solid fa-star"></i>
+                                                    {% else %}
+                                                        <i class="fa-regular fa-star"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </span>
+                                            <small class="text-muted">({{ property.reviewsCount }} avis)</small>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="card-footer bg-white border-top-0">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="h5 mb-0 text-primary">{{ property.price|number_format(0, ',', ' ') }} TND<small class="text-muted fw-normal">/nuit</small></span>
+                                        <a href="{{ path('app_property_show', {id: property.id}) }}" class="btn btn-outline-primary btn-sm">
+                                            Voir <i class="fa-solid fa-arrow-right ms-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="d-flex justify-content-center mt-4">
+                    {{ knp_pagination_render(properties) }}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fa-solid fa-search fa-4x text-muted mb-3"></i>
+                    <h4>Aucune propriété trouvée</h4>
+                    <p class="text-muted">Essayez de modifier vos critères de recherche</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

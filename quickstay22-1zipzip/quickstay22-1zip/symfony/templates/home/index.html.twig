@@ -1,0 +1,193 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil - QuickStay{% endblock %}
+
+{% block body %}
+<section class="hero bg-primary text-white py-5">
+    <div class="container py-5">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h1 class="display-4 fw-bold mb-4">
+                    Trouvez votre logement idéal
+                </h1>
+                <p class="lead mb-4">
+                    Découvrez des milliers de propriétés pour vos vacances ou voyages d'affaires en Tunisie.
+                </p>
+                <a href="{{ path('app_properties') }}" class="btn btn-light btn-lg">
+                    <i class="fa-solid fa-search me-2"></i>Explorer les propriétés
+                </a>
+            </div>
+            <div class="col-lg-6">
+                <div class="card shadow-lg">
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-3">Recherche rapide</h5>
+                        <form action="{{ path('app_properties') }}" method="get">
+                            <div class="mb-3">
+                                <label class="form-label">Destination</label>
+                                <select name="city" class="form-select">
+                                    <option value="">Toutes les villes</option>
+                                    {% for city in cities %}
+                                        <option value="{{ city }}">{{ city }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="row">
+                                <div class="col-6 mb-3">
+                                    <label class="form-label">Arrivée</label>
+                                    <input type="date" name="checkin" class="form-control">
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <label class="form-label">Départ</label>
+                                    <input type="date" name="checkout" class="form-control">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fa-solid fa-search me-2"></i>Rechercher
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if featuredProperties|length > 0 %}
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fa-solid fa-star text-warning me-2"></i>Propriétés en vedette</h2>
+            <a href="{{ path('app_properties') }}" class="btn btn-outline-primary">Voir tout</a>
+        </div>
+        
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for property in featuredProperties %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <div class="position-relative">
+                            {% if property.mainImage %}
+                                <img src="{{ asset('uploads/properties/' ~ property.mainImage) }}" 
+                                     class="card-img-top" 
+                                     alt="{{ property.title }}"
+                                     style="height: 200px; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                                    <i class="fa-solid fa-home fa-4x text-white"></i>
+                                </div>
+                            {% endif %}
+                            <span class="badge bg-warning position-absolute top-0 start-0 m-2">
+                                <i class="fa-solid fa-star"></i> En vedette
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title text-truncate">{{ property.title }}</h5>
+                            <p class="card-text text-muted mb-2">
+                                <i class="fa-solid fa-location-dot me-1"></i>{{ property.city }}
+                            </p>
+                            <div class="d-flex justify-content-between mb-2">
+                                <small class="text-muted"><i class="fa-solid fa-bed me-1"></i>{{ property.bedrooms }} ch.</small>
+                                <small class="text-muted"><i class="fa-solid fa-bath me-1"></i>{{ property.bathrooms }} sdb.</small>
+                                <small class="text-muted"><i class="fa-solid fa-users me-1"></i>{{ property.capacity }} pers.</small>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-top-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="h5 mb-0 text-primary">{{ property.price|number_format(0, ',', ' ') }} TND<small class="text-muted fw-normal">/nuit</small></span>
+                                <a href="{{ path('app_property_show', {id: property.id}) }}" class="btn btn-outline-primary btn-sm">
+                                    Voir <i class="fa-solid fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% if categories|length > 0 %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-4"><i class="fa-solid fa-tags text-primary me-2"></i>Catégories</h2>
+        
+        <div class="row row-cols-2 row-cols-md-4 g-4">
+            {% for category in categories %}
+                <div class="col">
+                    <a href="{{ path('app_properties', {category: category.id}) }}" class="card text-decoration-none h-100 shadow-sm">
+                        <div class="card-body text-center py-4">
+                            <i class="fa-solid {{ category.icon ?? 'fa-home' }} fa-3x text-primary mb-3"></i>
+                            <h5 class="card-title mb-0">{{ category.name }}</h5>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% if latestProperties|length > 0 %}
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fa-solid fa-clock text-primary me-2"></i>Dernières propriétés</h2>
+            <a href="{{ path('app_properties') }}" class="btn btn-outline-primary">Voir tout</a>
+        </div>
+        
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+            {% for property in latestProperties %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <div class="position-relative">
+                            {% if property.mainImage %}
+                                <img src="{{ asset('uploads/properties/' ~ property.mainImage) }}" 
+                                     class="card-img-top" 
+                                     alt="{{ property.title }}"
+                                     style="height: 160px; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-secondary d-flex align-items-center justify-content-center" style="height: 160px;">
+                                    <i class="fa-solid fa-home fa-3x text-white"></i>
+                                </div>
+                            {% endif %}
+                            <span class="badge bg-primary position-absolute top-0 end-0 m-2">
+                                {{ property.typeLabel }}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-title text-truncate">{{ property.title }}</h6>
+                            <p class="card-text text-muted small mb-2">
+                                <i class="fa-solid fa-location-dot me-1"></i>{{ property.city }}
+                            </p>
+                        </div>
+                        <div class="card-footer bg-white border-top-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-primary fw-bold">{{ property.price|number_format(0, ',', ' ') }} TND</span>
+                                <a href="{{ path('app_property_show', {id: property.id}) }}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section class="py-5 bg-primary text-white">
+    <div class="container text-center">
+        <h2 class="mb-4">Prêt à réserver votre prochain séjour ?</h2>
+        <p class="lead mb-4">Inscrivez-vous gratuitement et accédez à des milliers de propriétés</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{{ path('app_register') }}" class="btn btn-light btn-lg">
+                <i class="fa-solid fa-user-plus me-2"></i>S'inscrire
+            </a>
+            <a href="{{ path('app_properties') }}" class="btn btn-outline-light btn-lg">
+                <i class="fa-solid fa-search me-2"></i>Explorer
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,324 @@
+Je viens de terminer la conversion de mon projet QuickStay en Symfony. 
+Je veux une validation COMPLÈTE et SYSTÉMATIQUE de tous les aspects du projet.
+
+EFFECTUE UNE VÉRIFICATION DÉTAILLÉE DE :
+
+═══════════════════════════════════════════════════════════════════
+
+📁 1. STRUCTURE DES FICHIERS ET DOSSIERS
+
+Vérifie que j'ai bien :
+✓ /config (avec tous les fichiers yaml nécessaires)
+✓ /src
+  ├── /Controller (AdminController, PropertyController, ReservationController, SecurityController)
+  ├── /Entity (User, Property, Reservation, Review, Payment, Category)
+  ├── /Form (PropertyType, ReservationType, UserType, etc.)
+  ├── /Repository (tous les repositories correspondants)
+  ├── /Security (Voters si nécessaire)
+✓ /templates
+  ├── /admin (tous les templates CRUD)
+  ├── /property (list, show, search)
+  ├── /reservation (list, create, show)
+  ├── /security (login, register)
+  ├── base.html.twig
+✓ /public
+  ├── /css
+  ├── /js
+  ├── /images
+  ├── /uploads (pour les images uploadées)
+✓ /migrations (fichiers de migration générés)
+✓ .env et .env.local configurés
+✓ composer.json avec toutes les dépendances
+✓ package.json pour Webpack Encore
+
+═══════════════════════════════════════════════════════════════════
+
+🗄️ 2. ENTITÉS ET BASE DE DONNÉES
+
+Pour CHAQUE entité (User, Property, Reservation, Review, Payment, Category), vérifie :
+
+✓ Annotations/Attributs Doctrine corrects
+✓ Types de champs appropriés (string, text, datetime, decimal, etc.)
+✓ Relations correctement définies :
+  - User OneToMany Reservation
+  - Property OneToMany Reservation
+  - Property ManyToOne User (propriétaire)
+  - Reservation ManyToOne User
+  - Reservation ManyToOne Property
+  - Review ManyToOne User et Property
+  - Payment OneToOne Reservation
+✓ Contraintes de validation (@Assert)
+✓ Getters et Setters générés
+✓ Méthodes __toString() pour faciliter l'affichage
+✓ Propriétés nullable là où nécessaire
+✓ Valeurs par défaut (ex: createdAt = now())
+
+TESTE :
+php bin/console doctrine:schema:validate
+php bin/console make:migration
+php bin/console doctrine:migrations:migrate
+
+═══════════════════════════════════════════════════════════════════
+
+🔐 3. SÉCURITÉ (CRITIQUE)
+
+A. AUTHENTIFICATION
+✓ security.yaml correctement configuré
+✓ Firewalls définis (main, admin)
+✓ Password hasher configuré (bcrypt ou sodium)
+✓ Login form fonctionnel
+✓ Logout route configurée
+✓ Remember me (optionnel)
+
+B. AUTORISATION
+✓ Hiérarchie des rôles définie
+✓ Access control pour /admin/*
+✓ Voters créés si logique complexe
+✓ @IsGranted() ou denyAccessUnlessGranted() dans les controllers
+
+C. PROTECTION CSRF
+✓ CSRF activé dans security.yaml
+✓ {{ form_start(form) }} avec csrf_token dans tous les formulaires
+✓ Protection sur les actions DELETE/UPDATE
+
+D. PROTECTION XSS
+✓ Twig auto-escape activé (par défaut)
+✓ Utilisation de {{ variable }} et non {{ variable|raw }}
+✓ Validation des entrées utilisateur avec Validator
+
+E. PROTECTION SQL INJECTION
+✓ Utilisation exclusive de Doctrine ORM
+✓ Pas de requêtes SQL brutes
+✓ Utilisation de QueryBuilder ou DQL avec paramètres
+
+TESTE :
+- Tenter de se connecter avec compte inexistant
+- Accéder à /admin sans authentification
+- Soumettre des formulaires avec données malveillantes
+- Vérifier les tokens CSRF dans le HTML
+
+═══════════════════════════════════════════════════════════════════
+
+🎨 4. FORMULAIRES
+
+Pour chaque formulaire (Property, Reservation, User, Review) :
+
+✓ FormType créé dans /src/Form
+✓ Champs correctement typés (TextType, FileType, DateType, etc.)
+✓ Contraintes de validation
+✓ FileType avec VichUploader pour les images
+✓ Labels et placeholders en français
+✓ Thème Bootstrap appliqué
+✓ Gestion des erreurs
+
+TESTE :
+- Soumettre formulaire vide → erreurs de validation
+- Soumettre formulaire avec données invalides
+- Upload d'image → vérifier stockage dans /public/uploads
+
+═══════════════════════════════════════════════════════════════════
+
+🎮 5. CONTROLLERS
+
+A. ADMIN CONTROLLERS
+✓ PropertyController : index, new, show, edit, delete
+✓ ReservationController : index, show, updateStatus
+✓ UserController : index, show, edit, delete
+✓ DashboardController : statistiques fonctionnelles
+
+B. FRONT CONTROLLERS
+✓ HomeController : page d'accueil
+✓ PropertyController : list (avec filtres), show
+✓ ReservationController : create, myReservations
+✓ SecurityController : login, register, logout
+✓ UserController : profile, editProfile
+
+C. VÉRIFICATIONS COMMUNES
+✓ Annotations de route correctes
+✓ Gestion des erreurs (404, 403)
+✓ Flash messages pour feedback utilisateur
+✓ Redirection après actions POST
+✓ Pagination sur les listes (KnpPaginatorBundle)
+
+TESTE chaque route :
+php bin/console debug:router
+
+═══════════════════════════════════════════════════════════════════
+
+🖼️ 6. TEMPLATES TWIG
+
+A. STRUCTURE
+✓ base.html.twig avec blocks (title, stylesheets, body, javascripts)
+✓ Navbar avec liens conditionnels (is_granted())
+✓ Footer commun
+✓ Flash messages affichés
+
+B. PAGES ADMIN
+✓ Sidebar avec menu de navigation
+✓ Tableaux avec actions (edit, delete)
+✓ Formulaires stylisés avec Bootstrap
+✓ Confirmations JavaScript pour suppressions
+
+C. PAGES FRONT
+✓ Listing des propriétés avec cards
+✓ Système de filtres (formulaire de recherche)
+✓ Page détail avec galerie d'images
+✓ Formulaire de réservation avec calendrier
+✓ Page profil utilisateur
+
+D. VÉRIFICATIONS
+✓ Pas d'erreur Twig
+✓ Assets correctement chargés (CSS/JS)
+✓ Images affichées
+✓ Responsive (Bootstrap)
+✓ Messages d'erreur de formulaire affichés
+
+═══════════════════════════════════════════════════════════════════
+
+📊 7. DASHBOARD ET STATISTIQUES
+
+✓ Nombre total de réservations (groupées par statut)
+✓ Revenus totaux et par période
+✓ Taux d'occupation moyen
+✓ Top 5 propriétés les plus réservées
+✓ Graphiques (Chart.js ou ApexCharts)
+✓ Filtres par date
+
+REQUÊTE EXEMPLE :
+SELECT COUNT(*) FROM reservation WHERE status = 'confirmed'
+
+═══════════════════════════════════════════════════════════════════
+
+🔧 8. CONFIGURATION
+
+A. .env / .env.local
+✓ DATABASE_URL correctement configurée
+✓ APP_ENV (dev ou prod)
+✓ APP_SECRET généré
+✓ MAILER_DSN si emails
+
+B. config/packages
+✓ doctrine.yaml (auto_mapping, dql functions)
+✓ security.yaml (firewalls, access_control)
+✓ twig.yaml (form_themes, globals)
+✓ vich_uploader.yaml (si utilisé)
+✓ webpack_encore.yaml
+
+C. services.yaml
+✓ Autowiring activé
+✓ Services personnalisés si nécessaire
+
+═══════════════════════════════════════════════════════════════════
+
+📦 9. DÉPENDANCES
+
+Vérifie que composer.json contient :
+✓ symfony/orm-pack
+✓ symfony/form
+✓ symfony/security-bundle
+✓ symfony/validator
+✓ symfony/webpack-encore-bundle
+✓ vich/uploader-bundle (pour images)
+✓ knplabs/knp-paginator-bundle
+✓ symfony/maker-bundle (--dev)
+
+COMMANDE :
+composer install --no-dev --optimize-autoloader (pour prod)
+
+═══════════════════════════════════════════════════════════════════
+
+🧪 10. TESTS FONCTIONNELS
+
+SCÉNARIOS À TESTER :
+
+A. INSCRIPTION/CONNEXION
+□ Créer un compte utilisateur
+□ Se connecter
+□ Se déconnecter
+□ Mot de passe oublié (si implémenté)
+
+B. RECHERCHE ET RÉSERVATION (CÔTÉ CLIENT)
+□ Rechercher des propriétés (avec filtres)
+□ Voir détails d'une propriété
+□ Faire une réservation
+□ Voir l'historique de mes réservations
+□ Laisser un avis
+
+C. GESTION ADMIN
+□ Se connecter en admin
+□ Créer une nouvelle propriété (avec images)
+□ Modifier une propriété
+□ Supprimer une propriété
+□ Voir liste des réservations
+□ Changer statut d'une réservation
+□ Voir les statistiques
+
+D. SÉCURITÉ
+□ Accéder à /admin sans être connecté → Redirection
+□ Accéder à /admin en tant que USER → Accès refusé
+□ Modifier une réservation d'un autre user → Accès refusé
+□ Soumettre formulaire sans CSRF token → Erreur
+□ Tenter injection SQL dans recherche → Pas d'effet
+
+═══════════════════════════════════════════════════════════════════
+
+🚀 11. PERFORMANCE ET OPTIMISATION
+
+✓ Indexes sur colonnes fréquemment recherchées
+✓ Eager loading pour éviter N+1 queries
+✓ Cache Doctrine activé (en prod)
+✓ Assets minifiés (Webpack Encore en prod)
+✓ Images optimisées
+
+COMMANDES :
+php bin/console cache:clear
+npm run build (pour prod)
+
+═══════════════════════════════════════════════════════════════════
+
+📝 12. DOCUMENTATION
+
+✓ README.md avec :
+  - Description du projet
+  - Prérequis (PHP 8.1+, Composer, Node.js)
+  - Installation (composer install, npm install)
+  - Configuration (.env)
+  - Migrations (doctrine:migrations:migrate)
+  - Fixtures (doctrine:fixtures:load)
+  - Lancement serveur (symfony serve)
+✓ Comptes de test documentés (admin/user)
+✓ Captures d'écran (optionnel)
+
+═══════════════════════════════════════════════════════════════════
+
+✅ CHECKLIST FINALE
+
+Exécute ces commandes et vérifie qu'il n'y a PAS d'erreurs :
+
+□ composer install
+□ npm install
+□ npm run dev (ou build)
+□ php bin/console doctrine:database:create
+□ php bin/console doctrine:migrations:migrate
+□ php bin/console doctrine:fixtures:load (si fixtures)
+□ php bin/console cache:clear
+□ symfony serve -d (ou php -S localhost:8000 -t public/)
+
+Puis accède à :
+□ http://localhost:8000 → Page d'accueil
+□ http://localhost:8000/login → Connexion
+□ http://localhost:8000/register → Inscription
+□ http://localhost:8000/properties → Liste propriétés
+□ http://localhost:8000/admin → Dashboard admin
+
+═══════════════════════════════════════════════════════════════════
+
+🎯 RAPPORT ATTENDU
+
+Pour chaque section ci-dessus, génère :
+1. ✅ Ce qui fonctionne correctement
+2. ⚠️ Les warnings/améliorations possibles
+3. ❌ Les erreurs critiques à corriger
+4. 💡 Suggestions d'optimisation
+
+Commence la vérification maintenant et donne-moi un rapport détaillé !

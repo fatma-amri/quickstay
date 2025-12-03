@@ -1,0 +1,645 @@
+PROBLÈME : La page de profil utilisateur ne fonctionne pas correctement dans QuickStay.
+
+DIAGNOSTIC ET CORRECTION COMPLÈTE DE LA FONCTIONNALITÉ PROFIL :
+
+═══════════════════════════════════════════════════════════════════
+🔍 ÉTAPE 1 : ANALYSE DU PROBLÈME
+═══════════════════════════════════════════════════════════════════
+
+Symptômes possibles :
+□ La page profil ne s'affiche pas (page blanche)
+□ Les informations utilisateur ne s'affichent pas
+□ Le formulaire de modification ne fonctionne pas
+□ Erreur 404 ou 403 lors de l'accès
+□ Les modifications ne sont pas enregistrées
+
+Donne-moi plus de détails sur le problème exact :
+- Quel est le message d'erreur (si existant) ?
+- Que se passe-t-il quand tu cliques sur le profil ?
+- Les logs d'erreur (var/log/dev.log) ?
+
+═══════════════════════════════════════════════════════════════════
+🎯 ÉTAPE 2 : CRÉATION/CORRECTION DU CONTROLLER PROFIL
+═══════════════════════════════════════════════════════════════════
+
+GÉNÈRE-MOI le fichier complet : src/Controller/ProfileController.php
+
+✅ CODE COMPLET ET FONCTIONNEL :
+```php
+<?php
+
+namespace App\Controller;
+
+use App\Entity\User;
+use App\Form\ProfileType;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+
+#[Route('/profile')]
+#[IsGranted('ROLE_USER')]
+class ProfileController extends AbstractController
+{
+    #[Route('', name: 'app_profile', methods: ['GET'])]
+    public function index(): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        
+        if (!$user) {
+            throw $this->createAccessDeniedException('Vous devez être connecté pour accéder à votre profil.');
+        }
+
+        return $this->render('profile/index.html.twig', [
+            'user' => $user,
+        ]);
+    }
+
+    #[Route('/edit', name: 'app_profile_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        
+        if (!$user) {
+            throw $this->createAccessDeniedException('Vous devez être connecté.');
+        }
+
+        $form = $this->createForm(ProfileType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $entityManager->flush();
+                
+                $this->addFlash('success', 'Votre profil a été mis à jour avec succès !');
+                
+                return $this->redirectToRoute('app_profile');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Une erreur est survenue lors de la mise à jour de votre profil.');
+            }
+        }
+
+        return $this->render('profile/edit.html.twig', [
+            'user' => $user,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/reservations', name: 'app_profile_reservations', methods: ['GET'])]
+    public function reservations(): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        
+        if (!$user) {
+            throw $this->createAccessDeniedException('Vous devez être connecté.');
+        }
+
+        $reservations = $user->getReservations();
+
+        return $this->render('profile/reservations.html.twig', [
+            'user' => $user,
+            'reservations' => $reservations,
+        ]);
+    }
+}
+```
+
+═══════════════════════════════════════════════════════════════════
+📝 ÉTAPE 3 : CRÉATION DU FORMULAIRE PROFIL
+═══════════════════════════════════════════════════════════════════
+
+GÉNÈRE-MOI le fichier : src/Form/ProfileType.php
+
+✅ CODE COMPLET :
+```php
+<?php
+
+namespace App\Form;
+
+use App\Entity\User;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\TelType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
+
+class ProfileType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder
+            ->add('firstName', TextType::class, [
+                'label' => 'Prénom',
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Votre prénom'
+                ],
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Le prénom est obligatoire'
+                    ]),
+                    new Length([
+                        'min' => 2,
+                        'minMessage' => 'Le prénom doit contenir au moins {{ limit }} caractères',
+                        'max' => 50,
+                    ]),
+                ],
+            ])
+            ->add('lastName', TextType::class, [
+                'label' => 'Nom',
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Votre nom'
+                ],
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Le nom est obligatoire'
+                    ]),
+                    new Length([
+                        'min' => 2,
+                        'minMessage' => 'Le nom doit contenir au moins {{ limit }} caractères',
+                        'max' => 50,
+                    ]),
+                ],
+            ])
+            ->add('email', EmailType::class, [
+                'label' => 'Email',
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'votre@email.com'
+                ],
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'L\'email est obligatoire'
+                    ]),
+                    new Email([
+                        'message' => 'L\'email {{ value }} n\'est pas valide.'
+                    ]),
+                ],
+            ])
+            ->add('phone', TelType::class, [
+                'label' => 'Téléphone',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => '+216 XX XXX XXX'
+                ],
+            ])
+            ->add('address', TextType::class, [
+                'label' => 'Adresse',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Votre adresse'
+                ],
+            ])
+            ->add('city', TextType::class, [
+                'label' => 'Ville',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Tunis'
+                ],
+            ])
+            ->add('country', TextType::class, [
+                'label' => 'Pays',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Tunisie'
+                ],
+            ])
+            ->add('avatar', FileType::class, [
+                'label' => 'Photo de profil',
+                'mapped' => false,
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'accept' => 'image/*'
+                ],
+                'constraints' => [
+                    new File([
+                        'maxSize' => '2M',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png',
+                            'image/gif',
+                        ],
+                        'mimeTypesMessage' => 'Veuillez uploader une image valide (JPG, PNG, GIF)',
+                    ])
+                ],
+            ])
+        ;
+    }
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => User::class,
+        ]);
+    }
+}
+```
+
+═══════════════════════════════════════════════════════════════════
+👤 ÉTAPE 4 : VÉRIFICATION/MISE À JOUR DE L'ENTITÉ USER
+═══════════════════════════════════════════════════════════════════
+
+Vérifie que ton entité User.php contient TOUS ces champs :
+
+✅ PROPRIÉTÉS NÉCESSAIRES dans src/Entity/User.php :
+```php
+#[ORM\Column(type: 'string', length: 255)]
+private ?string $firstName = null;
+
+#[ORM\Column(type: 'string', length: 255)]
+private ?string $lastName = null;
+
+#[ORM\Column(type: 'string', length: 180, unique: true)]
+private ?string $email = null;
+
+#[ORM\Column(type: 'string', length: 20, nullable: true)]
+private ?string $phone = null;
+
+#[ORM\Column(type: 'string', length: 255, nullable: true)]
+private ?string $address = null;
+
+#[ORM\Column(type: 'string', length: 100, nullable: true)]
+private ?string $city = null;
+
+#[ORM\Column(type: 'string', length: 100, nullable: true)]
+private ?string $country = null;
+
+#[ORM\Column(type: 'string', length: 255, nullable: true)]
+private ?string $avatar = null;
+
+#[ORM\Column(type: 'datetime_immutable')]
+private ?\DateTimeImmutable $createdAt = null;
+
+#[ORM\OneToMany(mappedBy: 'user', targetEntity: Reservation::class)]
+private Collection $reservations;
+```
+
+✅ AVEC TOUS LES GETTERS/SETTERS correspondants.
+
+Si ces champs manquent, GÉNÈRE-MOI l'entité User.php complète.
+
+═══════════════════════════════════════════════════════════════════
+🎨 ÉTAPE 5 : CRÉATION DES TEMPLATES
+═══════════════════════════════════════════════════════════════════
+
+A. TEMPLATE DE VISUALISATION DU PROFIL
+
+GÉNÈRE : templates/profile/index.html.twig
+```twig
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Profil - QuickStay{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-3">
+            <!-- Sidebar Profil -->
+            <div class="card">
+                <div class="card-body text-center">
+                    {% if user.avatar %}
+                        <img src="{{ asset('uploads/avatars/' ~ user.avatar) }}" 
+                             alt="Avatar" 
+                             class="rounded-circle img-fluid mb-3" 
+                             style="width: 150px; height: 150px; object-fit: cover;">
+                    {% else %}
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" 
+                             style="width: 150px; height: 150px; font-size: 48px;">
+                            {{ user.firstName[0]|upper }}{{ user.lastName[0]|upper }}
+                        </div>
+                    {% endif %}
+                    
+                    <h4>{{ user.firstName }} {{ user.lastName }}</h4>
+                    <p class="text-muted">{{ user.email }}</p>
+                    
+                    <div class="d-grid gap-2 mt-3">
+                        <a href="{{ path('app_profile_edit') }}" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Modifier mon profil
+                        </a>
+                        <a href="{{ path('app_profile_reservations') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-calendar-check"></i> Mes réservations
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <!-- Flash Messages -->
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle"></i> {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+            
+            <!-- Informations du Profil -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-user"></i> Informations personnelles</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong><i class="fas fa-user"></i> Nom complet :</strong>
+                            <p>{{ user.firstName }} {{ user.lastName }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong><i class="fas fa-envelope"></i> Email :</strong>
+                            <p>{{ user.email }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong><i class="fas fa-phone"></i> Téléphone :</strong>
+                            <p>{{ user.phone ?? 'Non renseigné' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong><i class="fas fa-calendar"></i> Membre depuis :</strong>
+                            <p>{{ user.createdAt|date('d/m/Y') }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if user.address or user.city or user.country %}
+                    <div class="row">
+                        <div class="col-12">
+                            <strong><i class="fas fa-map-marker-alt"></i> Adresse :</strong>
+                            <p>
+                                {{ user.address ?? '' }}
+                                {% if user.city %}, {{ user.city }}{% endif %}
+                                {% if user.country %}, {{ user.country }}{% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Statistiques -->
+            <div class="card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Mes statistiques</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <div class="p-3">
+                                <h2 class="text-primary">{{ user.reservations|length }}</h2>
+                                <p class="text-muted">Réservations totales</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3">
+                                <h2 class="text-success">
+                                    {{ user.reservations|filter(r => r.status == 'confirmed')|length }}
+                                </h2>
+                                <p class="text-muted">Réservations confirmées</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3">
+                                <h2 class="text-warning">
+                                    {{ user.reservations|filter(r => r.status == 'pending')|length }}
+                                </h2>
+                                <p class="text-muted">En attente</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+```
+
+B. TEMPLATE DE MODIFICATION DU PROFIL
+
+GÉNÈRE : templates/profile/edit.html.twig
+```twig
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier mon profil - QuickStay{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-user-edit"></i> Modifier mon profil</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Flash Messages -->
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success alert-dismissible fade show">
+                            <i class="fas fa-check-circle"></i> {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                    
+                    {% for message in app.flashes('error') %}
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            <i class="fas fa-exclamation-circle"></i> {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                    
+                    {{ form_start(form) }}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form_row(form.firstName) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form_row(form.lastName) }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form_row(form.email) }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form_row(form.phone) }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form_row(form.address) }}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form_row(form.city) }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form_row(form.country) }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form_row(form.avatar) }}
+                        {% if user.avatar %}
+                            <small class="text-muted d-block mt-2">
+                                Photo actuelle : 
+                                <img src="{{ asset('uploads/avatars/' ~ user.avatar) }}" 
+                                     alt="Avatar actuel" 
+                                     class="img-thumbnail" 
+                                     style="max-width: 100px;">
+                            </small>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{{ path('app_profile') }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Annuler
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Enregistrer les modifications
+                        </button>
+                    </div>
+                    
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+```
+
+C. TEMPLATE DES RÉSERVATIONS
+
+GÉNÈRE : templates/profile/reservations.html.twig
+```twig
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes réservations - QuickStay{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h2 class="mb-4"><i class="fas fa-calendar-check"></i> Mes réservations</h2>
+    
+    {% if reservations is empty %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> Vous n'avez aucune réservation pour le moment.
+            <a href="{{ path('property_index') }}" class="alert-link">Découvrir nos propriétés</a>
+        </div>
+    {% else %}
+        <div class="row">
+            {% for reservation in reservations %}
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">{{ reservation.property.name }}</h5>
+                            <span class="badge 
+                                {% if reservation.status == 'confirmed' %}bg-success
+                                {% elseif reservation.status == 'pending' %}bg-warning
+                                {% elseif reservation.status == 'cancelled' %}bg-danger
+                                {% else %}bg-secondary{% endif %}">
+                                {{ reservation.status|upper }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p><strong><i class="fas fa-calendar"></i> Check-in :</strong> {{ reservation.checkIn|date('d/m/Y') }}</p>
+                        <p><strong><i class="fas fa-calendar"></i> Check-out :</strong> {{ reservation.checkOut|date('d/m/Y') }}</p>
+                        <p><strong><i class="fas fa-users"></i> Personnes :</strong> {{ reservation.guests }}</p>
+                        <p><strong><i class="fas fa-euro-sign"></i> Prix total :</strong> {{ reservation.totalPrice }} €</p>
+                        
+                        <div class="d-flex justify-content-between mt-3">
+                            <a href="{{ path('property_show', {id: reservation.property.id}) }}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-eye"></i> Voir la propriété
+                            </a>
+                            {% if reservation.status == 'pending' %}
+                                <a href="#" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-times"></i> Annuler
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <div class="mt-4">
+        <a href="{{ path('app_profile') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour au profil
+        </a>
+    </div>
+</div>
+{% endblock %}
+```
+
+═══════════════════════════════════════════════════════════════════
+🔗 ÉTAPE 6 : MISE À JOUR DE LA NAVIGATION
+═══════════════════════════════════════════════════════════════════
+
+Dans ton template base.html.twig (navbar), ajoute le lien vers le profil :
+```twig
+{% if is_granted('ROLE_USER') %}
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" 
+           data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-user-circle"></i> {{ app.user.firstName }}
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="userDropdown">
+            <li>
+                <a class="dropdown-item" href="{{ path('app_profile') }}">
+                    <i class="fas fa-user"></i> Mon profil
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" href="{{ path('app_profile_reservations') }}">
+                    <i class="fas fa-calendar-check"></i> Mes réservations
+                </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+                <a class="dropdown-item" href="{{ path('app_logout') }}">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </a>
+            </li>
+        </ul>
+    </li>
+{% endif %}
+```
+
+═══════════════════════════════════════════════════════════════════
+✅ ÉTAPE 7 : TESTS ET VALIDATION
+═══════════════════════════════════════════════════════════════════
+
+APRÈS AVOIR APPLIQUÉ TOUTES LES CORRECTIONS :
+
+1. Vide le cache :
+```bash
+php bin/console cache:clear
+```
+
+2. Vérifie les routes :
+```bash
+php bin/console debug:router | grep profile
+```
+
+Tu dois voir :

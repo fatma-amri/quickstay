@@ -33,11 +33,13 @@
                     </li>
                     {% endif %}
                     
+                    {% if not is_granted('ROLE_ADMIN') %}
                     <li class="nav-item">
                         <a class="nav-link {{ app.request.attributes.get('_route') == 'app_reservations' ? 'active' : '' }}" href="{{ path('app_reservations') }}">
                             <i class="fa-solid fa-bookmark me-1"></i> Mes réservations
                         </a>
                     </li>
+                    {% endif %}
                     
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">

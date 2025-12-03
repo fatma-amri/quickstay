@@ -190,7 +190,7 @@
                     <h5 class="mb-0"><i class="fa-solid fa-calendar-check me-2"></i>Réserver</h5>
                 </div>
                 <div class="card-body">
-                    {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                    {% if is_granted('IS_AUTHENTICATED_FULLY') and not is_granted('ROLE_ADMIN') %}
                         {{ form_start(reservationForm, {'action': path('app_reservation_new', {id: property.id}), 'attr': {'id': 'reservation-form'}}) }}
                             {{ form_row(reservationForm.startDate) }}
                             {{ form_row(reservationForm.endDate) }}
@@ -213,6 +213,14 @@
                                 <i class="fa-solid fa-check me-2"></i>Réserver maintenant
                             </button>
                         {{ form_end(reservationForm) }}
+                    {% elseif is_granted('ROLE_ADMIN') %}
+                        <div class="text-center py-4">
+                            <i class="fa-solid fa-user-shield fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">En tant qu'administrateur, vous ne pouvez pas effectuer de réservations.</p>
+                            <a href="{{ path('admin_dashboard') }}" class="btn btn-secondary">
+                                <i class="fa-solid fa-gauge-high me-2"></i>Retour à l'administration
+                            </a>
+                        </div>
                     {% else %}
                         <div class="text-center py-4">
                             <i class="fa-solid fa-lock fa-3x text-muted mb-3"></i>

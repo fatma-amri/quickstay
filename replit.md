@@ -48,4 +48,9 @@ php -S 0.0.0.0:5000 -t public
 ```
 
 ## Recent Changes
+- 2025-12-04: Blocked admin users from making reservations (admins manage, don't book)
 - 2025-12-03: Initial setup with SQLite database, fixtures loaded with test data
+
+## Access Restrictions
+- **Admins**: Can manage properties, users, and view all reservations in admin panel, but CANNOT make reservations
+- **Regular Users**: Can browse properties, make reservations, and leave reviews

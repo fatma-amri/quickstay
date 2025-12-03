@@ -20,6 +20,11 @@ class ReservationController extends AbstractController
     #[Route('', name: 'app_reservations')]
     public function index(ReservationRepository $reservationRepository): Response
     {
+        if ($this->isGranted('ROLE_ADMIN')) {
+            $this->addFlash('error', 'Les administrateurs ne peuvent pas accéder aux réservations clients.');
+            return $this->redirectToRoute('admin_dashboard');
+        }
+
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
         $reservations = $reservationRepository->findByUserWithProperty($user->getId());
@@ -36,6 +41,11 @@ class ReservationController extends AbstractController
         EntityManagerInterface $entityManager,
         ReservationRepository $reservationRepository
     ): Response {
+        if ($this->isGranted('ROLE_ADMIN')) {
+            $this->addFlash('error', 'Les administrateurs ne peuvent pas effectuer de réservations.');
+            return $this->redirectToRoute('app_property_show', ['id' => $property->getId()]);
+        }
+
         if (!$property->isPublished() || !$property->isAvailable()) {
             $this->addFlash('error', 'Cette propriété n\'est pas disponible à la réservation.');
             return $this->redirectToRoute('app_property_show', ['id' => $property->getId()]);
@@ -85,6 +95,11 @@ class ReservationController extends AbstractController
     #[Route('/{id}', name: 'app_reservation_show', requirements: ['id' => '\d+'])]
     public function show(Reservation $reservation): Response
     {
+        if ($this->isGranted('ROLE_ADMIN')) {
+            $this->addFlash('error', 'Les administrateurs ne peuvent pas accéder aux réservations clients.');
+            return $this->redirectToRoute('admin_dashboard');
+        }
+
         $this->denyAccessUnlessGranted('RESERVATION_VIEW', $reservation);
 
         return $this->render('reservation/show.html.twig', [
@@ -98,6 +113,11 @@ class ReservationController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager
     ): Response {
+        if ($this->isGranted('ROLE_ADMIN')) {
+            $this->addFlash('error', 'Les administrateurs ne peuvent pas annuler des réservations depuis cette interface.');
+            return $this->redirectToRoute('admin_dashboard');
+        }
+
         $this->denyAccessUnlessGranted('RESERVATION_CANCEL', $reservation);
 
         if ($this->isCsrfTokenValid('cancel' . $reservation->getId(), $request->request->get('_token'))) {

@@ -17,7 +17,8 @@ class PropertyVoter extends Voter
 
     public function __construct(
         private Security $security
-    ) {}
+    ) {
+    }
 
     protected function supports(string $attribute, mixed $subject): bool
     {
@@ -64,7 +65,7 @@ class PropertyVoter extends Voter
 
     private function canEdit(Property $property, User $user): bool
     {
-        // Seul le propriétaire peut modifier sa propriété
+
         return $property->getOwner() === $user;
     }
 

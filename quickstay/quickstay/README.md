@@ -342,6 +342,4 @@ php -S localhost:8001 -t public
 - **MySQL Guide:** https://dev.mysql.com/doc/
 - **PhpMyAdmin:** https://www.phpmyadmin.net/docs/
 
-## License
 
-This project is part of QuickStay platform.

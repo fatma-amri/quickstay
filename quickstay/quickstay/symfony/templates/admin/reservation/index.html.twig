@@ -28,7 +28,13 @@
               <td>{{ reservation.user.name }}</td>
               <td>{{ reservation.startDate|date('d/m/Y') }} - {{ reservation.endDate|date('d/m/Y') }}</td>
               <td><span class="badge bg-{{ reservation.status == 'pending' ? 'warning' : (reservation.status == 'confirmed' ? 'success' : 'danger') }}">{{ reservation.statusLabel }}</span></td>
-              <td><a href="{{ path('admin_reservation_show', {id: reservation.id}) }}" class="btn btn-sm btn-info">Voir</a></td>
+              <td>
+                <a href="{{ path('admin_reservation_show', {id: reservation.id}) }}" class="btn btn-sm btn-info">Voir</a>
+                <form method="post" action="{{ path('admin_reservation_delete', {id: reservation.id}) }}" style="display: inline-block;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette réservation ?');">
+                  <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reservation.id) }}">
+                  <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                </form>
+              </td>
             </tr>
             {% else %}
             <tr><td colspan="5" class="text-center text-muted">Aucune réservation</td></tr>

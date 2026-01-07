@@ -140,7 +140,7 @@
                                 <td>
                                     <div class="d-flex py-1 align-items-center">
                                         {% if property.mainImage is defined and property.mainImage %}
-                                        <span class="avatar me-2" style="background-image: url({{ asset('uploads/properties/' ~ property.mainImage) }})"></span>
+                                        <span class="avatar me-2" style="background-image: url({{ asset(property.mainImage) }})"></span>
                                         {% else %}
                                         <span class="avatar me-2 bg-secondary-lt"><i class="fa-solid fa-home"></i></span>
                                         {% endif %}

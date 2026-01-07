@@ -11,7 +11,8 @@ class FileUploader
     public function __construct(
         private string $targetDirectory,
         private SluggerInterface $slugger
-    ) {}
+    ) {
+    }
 
     public function upload(UploadedFile $file, ?string $subdirectory = null): string
     {
@@ -19,8 +20,8 @@ class FileUploader
         $safeFilename = $this->slugger->slug($originalFilename);
         $fileName = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
 
-        $targetDir = $subdirectory 
-            ? $this->targetDirectory . '/' . $subdirectory 
+        $targetDir = $subdirectory
+            ? $this->targetDirectory . '/' . $subdirectory
             : $this->targetDirectory;
 
         try {
@@ -29,17 +30,17 @@ class FileUploader
             throw new \Exception('Erreur lors de l\'upload du fichier: ' . $e->getMessage());
         }
 
-        return $subdirectory ? $subdirectory . '/' . $fileName : $fileName;
+        return 'uploads/properties/' . $fileName;
     }
 
     public function remove(string $filename): bool
     {
         $filePath = $this->targetDirectory . '/' . $filename;
-        
+
         if (file_exists($filePath)) {
             return unlink($filePath);
         }
-        
+
         return false;
     }
 
